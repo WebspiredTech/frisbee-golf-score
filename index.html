@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frisbeegolf Scoreboard</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #131a2e;
+        --muted: #93a0c2;
+        --text: #f3f6ff;
+        --accent: #56d6a2;
+        --danger: #ff6b6b;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(1000px 600px at 20% -10%, #1b2450, var(--bg));
+        color: var(--text);
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .card {
+        background: linear-gradient(180deg, #1a2240 0%, var(--card) 100%);
+        border: 1px solid #2b3866;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      h1 { margin: 0 0 8px 0; font-size: 28px; }
+      .muted { color: var(--muted); margin: 0 0 12px 0; }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; }
+      input, button {
+        border: 1px solid #31406f;
+        background: #0f1530;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 15px;
+      }
+      input { min-width: 180px; }
+      button { cursor: pointer; }
+      button.primary { background: #173f34; border-color: #2d8f70; }
+      button.ghost { background: transparent; }
+      button.danger { background: #3f1f27; border-color: #8a3648; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 12px;
+      }
+      th, td {
+        border-bottom: 1px solid #28355e;
+        text-align: center;
+        padding: 10px 6px;
+      }
+      th:first-child, td:first-child {
+        text-align: left;
+        padding-left: 12px;
+      }
+      .score-cell { min-width: 110px; }
+      .score-controls {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .score-val {
+        display: inline-block;
+        min-width: 28px;
+        font-weight: 700;
+      }
+      .small-btn {
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+      .leader {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .footer {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      @media (max-width: 700px) {
+        th, td { padding: 8px 4px; }
+        .score-cell { min-width: 92px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>🥏 Frisbeegolf Scoreboard</h1>
+        <p class="muted">Välj antal banor, lägg till spelare, räkna poäng med + / −. Sparas i localStorage.</p>
+
+        <div class="row" style="margin-bottom: 10px">
+          <label>
+            Antal banor:
+            <input id="holesInput" type="number" min="1" max="36" value="9" />
+          </label>
+          <button id="applyHoles" class="primary">Sätt banor</button>
+          <button id="resetAll" class="danger">Nollställ allt</button>
+        </div>
+
+        <div class="row">
+          <input id="playerName" placeholder="Spelarnamn" />
+          <button id="addPlayer" class="primary">Lägg till spelare</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="leaderBoard"></div>
+        <div style="overflow-x:auto; margin-top: 10px;">
+          <table id="scoreTable"></table>
+        </div>
+        <div class="footer">Lägre totalpoäng leder.</div>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'frisbee-scoreboard-v1';
+
+      const state = loadState() || {
+        holes: 9,
+        players: [] // { id, name, scores: number[] }
+      };
+
+      const holesInput = document.getElementById('holesInput');
+      const applyHolesBtn = document.getElementById('applyHoles');
+      const resetBtn = document.getElementById('resetAll');
+      const playerNameInput = document.getElementById('playerName');
+      const addPlayerBtn = document.getElementById('addPlayer');
+      const table = document.getElementById('scoreTable');
+      const leaderBoard = document.getElementById('leaderBoard');
+
+      holesInput.value = state.holes;
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function ensureScoreLength(player) {
+        if (!Array.isArray(player.scores)) player.scores = [];
+        while (player.scores.length < state.holes) player.scores.push(0);
+        if (player.scores.length > state.holes) player.scores = player.scores.slice(0, state.holes);
+      }
+
+      function total(player) {
+        return player.scores.reduce((a, b) => a + b, 0);
+      }
+
+      function updateLeaders() {
+        if (state.players.length === 0) {
+          leaderBoard.innerHTML = '<p class="muted">Ingen spelare ännu.</p>';
+          return;
+        }
+
+        const totals = state.players.map(p => ({ name: p.name, total: total(p) }));
+        const best = Math.min(...totals.map(t => t.total));
+        const leaders = totals.filter(t => t.total === best).map(t => t.name);
+
+        leaderBoard.innerHTML = `<strong>Ledare:</strong> <span class="leader">${leaders.join(', ')}</span> <span class="muted">(${best} poäng)</span>`;
+      }
+
+      function render() {
+        state.players.forEach(ensureScoreLength);
+
+        const headerCells = ['<th>Spelare</th>'];
+        for (let i = 1; i <= state.holes; i++) headerCells.push(`<th>H${i}</th>`);
+        headerCells.push('<th>Total</th>');
+        headerCells.push('<th></th>');
+
+        let html = `<thead><tr>${headerCells.join('')}</tr></thead><tbody>`;
+
+        for (const player of state.players) {
+          const scoreCells = player.scores.map((s, idx) => {
+            return `<td class="score-cell">
+              <div class="score-controls">
+                <button class="small-btn" data-action="dec" data-player="${player.id}" data-hole="${idx}">−</button>
+                <span class="score-val">${s}</span>
+                <button class="small-btn" data-action="inc" data-player="${player.id}" data-hole="${idx}">+</button>
+              </div>
+            </td>`;
+          }).join('');
+
+          html += `<tr>
+            <td>${player.name}</td>
+            ${scoreCells}
+            <td><strong>${total(player)}</strong></td>
+            <td><button class="small-btn danger" data-action="remove-player" data-player="${player.id}">Ta bort</button></td>
+          </tr>`;
+        }
+
+        html += '</tbody>';
+        table.innerHTML = html;
+
+        updateLeaders();
+        saveState();
+      }
+
+      applyHolesBtn.addEventListener('click', () => {
+        const v = Number(holesInput.value);
+        if (!Number.isInteger(v) || v < 1 || v > 36) {
+          alert('Ange antal banor mellan 1 och 36.');
+          return;
+        }
+        state.holes = v;
+        render();
+      });
+
+      addPlayerBtn.addEventListener('click', () => {
+        const name = playerNameInput.value.trim();
+        if (!name) return;
+        state.players.push({
+          id: crypto.randomUUID(),
+          name,
+          scores: Array(state.holes).fill(0)
+        });
+        playerNameInput.value = '';
+        render();
+      });
+
+      playerNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addPlayerBtn.click();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('Nollställa hela rundan?')) return;
+        state.players = [];
+        saveState();
+        render();
+      });
+
+      table.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const playerId = btn.dataset.player;
+        const player = state.players.find(p => p.id === playerId);
+        if (!player) return;
+
+        if (action === 'remove-player') {
+          state.players = state.players.filter(p => p.id !== playerId);
+          render();
+          return;
+        }
+
+        const hole = Number(btn.dataset.hole);
+        if (!Number.isInteger(hole)) return;
+
+        if (action === 'inc') player.scores[hole] += 1;
+        if (action === 'dec') player.scores[hole] -= 1;
+        render();
+      });
+
+      render();
+    </script>
+  </body>
+</html>
