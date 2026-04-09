@@ -273,6 +273,13 @@
         if (!Array.isArray(player.scores)) player.scores = [];
         while (player.scores.length < state.holes) player.scores.push(0);
         if (player.scores.length > state.holes) player.scores = player.scores.slice(0, state.holes);
+
+        // Never allow negative or invalid score values.
+        player.scores = player.scores.map((value) => {
+          const n = Number(value);
+          if (!Number.isFinite(n)) return 0;
+          return Math.max(0, Math.round(n));
+        });
       }
 
       function total(player) {
