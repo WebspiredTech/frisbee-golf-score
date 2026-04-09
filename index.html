@@ -35,7 +35,7 @@
       h1 { margin: 0 0 8px 0; font-size: 28px; }
       .muted { color: var(--muted); margin: 0 0 12px 0; }
       .row { display: flex; gap: 10px; flex-wrap: wrap; }
-      input, button {
+      input, button, select {
         border: 1px solid #31406f;
         background: #0f1530;
         color: var(--text);
@@ -43,7 +43,7 @@
         padding: 10px 12px;
         font-size: 15px;
       }
-      input { min-width: 180px; }
+      input, select { min-width: 180px; }
       button { cursor: pointer; }
       button.primary { background: #173f34; border-color: #2d8f70; }
       button.ghost { background: transparent; }
@@ -88,9 +88,58 @@
         font-size: 14px;
         color: var(--muted);
       }
+
+      .active-player-row td {
+        background: rgba(86, 214, 162, 0.12);
+      }
+
+      .quick-score-card {
+        border: 2px solid #3a5fa4;
+      }
+
+      .status-line {
+        font-size: 16px;
+        margin: 0 0 10px 0;
+      }
+
+      .hole-nav {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .hole-pill {
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: #101c40;
+        border: 1px solid #31406f;
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .big-btn {
+        font-size: 20px;
+        font-weight: 700;
+        min-width: 72px;
+      }
+
       @media (max-width: 700px) {
+        .container { padding: 12px; }
         th, td { padding: 8px 4px; }
         .score-cell { min-width: 92px; }
+
+        .quick-score-card {
+          position: sticky;
+          bottom: 8px;
+          z-index: 20;
+          backdrop-filter: blur(4px);
+        }
       }
     </style>
   </head>
@@ -115,6 +164,29 @@
         </div>
       </div>
 
+      <div id="quickScoring" class="card quick-score-card" hidden>
+        <p id="activeStatus" class="status-line"></p>
+
+        <div class="row" style="margin-bottom: 10px;">
+          <label>
+            Välj spelare:
+            <select id="activePlayerSelect"></select>
+          </label>
+        </div>
+
+        <div class="hole-nav">
+          <button id="prevHole" class="ghost">← Hål</button>
+          <span id="holePill" class="hole-pill"></span>
+          <button id="nextHole" class="ghost">Hål →</button>
+        </div>
+
+        <div class="quick-actions">
+          <button id="quickDec" class="big-btn">−</button>
+          <button id="quickInc" class="big-btn primary">+</button>
+          <button id="incAll" class="primary">+1 till alla på hålet</button>
+        </div>
+      </div>
+
       <div class="card">
         <div id="leaderBoard"></div>
         <div style="overflow-x:auto; margin-top: 10px;">
@@ -125,11 +197,14 @@
     </div>
 
     <script>
-      const STORAGE_KEY = 'frisbee-scoreboard-v1';
+      const STORAGE_KEY = 'frisbee-scoreboard-v2';
 
-      const state = loadState() || {
+      const loaded = loadState();
+      const state = loaded || {
         holes: 9,
-        players: [] // { id, name, scores: number[] }
+        players: [],
+        activePlayerId: null,
+        activeHole: 0
       };
 
       const holesInput = document.getElementById('holesInput');
@@ -140,7 +215,18 @@
       const table = document.getElementById('scoreTable');
       const leaderBoard = document.getElementById('leaderBoard');
 
+      const quickScoring = document.getElementById('quickScoring');
+      const activeStatus = document.getElementById('activeStatus');
+      const activePlayerSelect = document.getElementById('activePlayerSelect');
+      const holePill = document.getElementById('holePill');
+      const prevHoleBtn = document.getElementById('prevHole');
+      const nextHoleBtn = document.getElementById('nextHole');
+      const quickIncBtn = document.getElementById('quickInc');
+      const quickDecBtn = document.getElementById('quickDec');
+      const incAllBtn = document.getElementById('incAll');
+
       holesInput.value = state.holes;
+      normalizeState();
 
       function saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -149,10 +235,38 @@
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          return raw ? JSON.parse(raw) : null;
+          if (raw) return JSON.parse(raw);
+
+          // fallback from older version
+          const oldRaw = localStorage.getItem('frisbee-scoreboard-v1');
+          if (oldRaw) {
+            const old = JSON.parse(oldRaw);
+            return {
+              holes: old.holes || 9,
+              players: old.players || [],
+              activePlayerId: old.players?.[0]?.id || null,
+              activeHole: 0
+            };
+          }
+
+          return null;
         } catch {
           return null;
         }
+      }
+
+      function normalizeState() {
+        if (!Number.isInteger(state.holes) || state.holes < 1) state.holes = 9;
+        if (!Array.isArray(state.players)) state.players = [];
+
+        state.players.forEach(ensureScoreLength);
+
+        if (!state.players.some(p => p.id === state.activePlayerId)) {
+          state.activePlayerId = state.players[0]?.id || null;
+        }
+
+        if (!Number.isInteger(state.activeHole)) state.activeHole = 0;
+        state.activeHole = Math.min(Math.max(state.activeHole, 0), state.holes - 1);
       }
 
       function ensureScoreLength(player) {
@@ -163,6 +277,10 @@
 
       function total(player) {
         return player.scores.reduce((a, b) => a + b, 0);
+      }
+
+      function getActivePlayer() {
+        return state.players.find(p => p.id === state.activePlayerId) || null;
       }
 
       function updateLeaders() {
@@ -178,8 +296,44 @@
         leaderBoard.innerHTML = `<strong>Ledare:</strong> <span class="leader">${leaders.join(', ')}</span> <span class="muted">(${best} poäng)</span>`;
       }
 
+      function setActivePlayer(playerId) {
+        if (!state.players.some(p => p.id === playerId)) return;
+        state.activePlayerId = playerId;
+      }
+
+      function incrementScore(playerId, hole, delta) {
+        const player = state.players.find(p => p.id === playerId);
+        if (!player) return;
+        if (hole < 0 || hole >= state.holes) return;
+
+        player.scores[hole] = Math.max(0, player.scores[hole] + delta);
+      }
+
+      function incrementAllPlayersOnActiveHole() {
+        for (const player of state.players) {
+          player.scores[state.activeHole] = Math.max(0, player.scores[state.activeHole] + 1);
+        }
+      }
+
+      function renderQuickScoring() {
+        const hasPlayers = state.players.length > 0;
+        quickScoring.hidden = !hasPlayers;
+
+        if (!hasPlayers) return;
+
+        activePlayerSelect.innerHTML = state.players
+          .map((p) => `<option value="${p.id}" ${p.id === state.activePlayerId ? 'selected' : ''}>${p.name}</option>`)
+          .join('');
+
+        const activePlayer = getActivePlayer();
+        const activeName = activePlayer ? activePlayer.name : 'Ingen';
+
+        activeStatus.innerHTML = `Du ändrar nu: <strong class="leader">${activeName}</strong>`;
+        holePill.textContent = `Hål ${state.activeHole + 1} av ${state.holes}`;
+      }
+
       function render() {
-        state.players.forEach(ensureScoreLength);
+        normalizeState();
 
         const headerCells = ['<th>Spelare</th>'];
         for (let i = 1; i <= state.holes; i++) headerCells.push(`<th>H${i}</th>`);
@@ -199,7 +353,9 @@
             </td>`;
           }).join('');
 
-          html += `<tr>
+          const rowClass = player.id === state.activePlayerId ? 'active-player-row' : '';
+
+          html += `<tr class="${rowClass}">
             <td>${player.name}</td>
             ${scoreCells}
             <td><strong>${total(player)}</strong></td>
@@ -210,6 +366,7 @@
         html += '</tbody>';
         table.innerHTML = html;
 
+        renderQuickScoring();
         updateLeaders();
         saveState();
       }
@@ -221,17 +378,20 @@
           return;
         }
         state.holes = v;
+        state.activeHole = Math.min(state.activeHole, state.holes - 1);
         render();
       });
 
       addPlayerBtn.addEventListener('click', () => {
         const name = playerNameInput.value.trim();
         if (!name) return;
-        state.players.push({
+        const newPlayer = {
           id: crypto.randomUUID(),
           name,
           scores: Array(state.holes).fill(0)
-        });
+        };
+        state.players.push(newPlayer);
+        if (!state.activePlayerId) state.activePlayerId = newPlayer.id;
         playerNameInput.value = '';
         render();
       });
@@ -243,7 +403,42 @@
       resetBtn.addEventListener('click', () => {
         if (!confirm('Nollställa hela rundan?')) return;
         state.players = [];
+        state.activePlayerId = null;
+        state.activeHole = 0;
         saveState();
+        render();
+      });
+
+      activePlayerSelect.addEventListener('change', (e) => {
+        setActivePlayer(e.target.value);
+        render();
+      });
+
+      prevHoleBtn.addEventListener('click', () => {
+        state.activeHole = Math.max(0, state.activeHole - 1);
+        render();
+      });
+
+      nextHoleBtn.addEventListener('click', () => {
+        state.activeHole = Math.min(state.holes - 1, state.activeHole + 1);
+        render();
+      });
+
+      quickIncBtn.addEventListener('click', () => {
+        if (!state.activePlayerId) return;
+        incrementScore(state.activePlayerId, state.activeHole, 1);
+        render();
+      });
+
+      quickDecBtn.addEventListener('click', () => {
+        if (!state.activePlayerId) return;
+        incrementScore(state.activePlayerId, state.activeHole, -1);
+        render();
+      });
+
+      incAllBtn.addEventListener('click', () => {
+        if (state.players.length === 0) return;
+        incrementAllPlayersOnActiveHole();
         render();
       });
 
@@ -258,6 +453,9 @@
 
         if (action === 'remove-player') {
           state.players = state.players.filter(p => p.id !== playerId);
+          if (state.activePlayerId === playerId) {
+            state.activePlayerId = state.players[0]?.id || null;
+          }
           render();
           return;
         }
@@ -265,8 +463,11 @@
         const hole = Number(btn.dataset.hole);
         if (!Number.isInteger(hole)) return;
 
-        if (action === 'inc') player.scores[hole] += 1;
-        if (action === 'dec') player.scores[hole] -= 1;
+        setActivePlayer(playerId);
+        state.activeHole = hole;
+
+        if (action === 'inc') incrementScore(playerId, hole, 1);
+        if (action === 'dec') incrementScore(playerId, hole, -1);
         render();
       });
 
