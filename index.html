@@ -85,6 +85,7 @@
       }
 
       * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
       html { -webkit-text-size-adjust: 100%; }
       body {
         margin: 0;
@@ -1278,6 +1279,7 @@
       const standingsTitle = document.getElementById('standingsTitle');
       const activeGameName = document.getElementById('activeGameName');
       const historyCount = document.getElementById('historyCount');
+      const historyCard = document.getElementById('historyCard');
       const historyToolbar = document.getElementById('historyToolbar');
       const courseFilter = document.getElementById('courseFilter');
       const courseStats = document.getElementById('courseStats');
@@ -1765,6 +1767,7 @@
         const records = [...gameHistory]
           .sort((a, b) => getPlayedTime(b) - getPlayedTime(a));
         historyCount.textContent = records.length;
+        historyCard.hidden = records.length === 0;
         historyToolbar.hidden = records.length === 0;
 
         if (records.length === 0) {
