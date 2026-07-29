@@ -1,203 +1,719 @@
 <!doctype html>
-<html lang="sv">
+<html lang="sv" data-theme="sun">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#eef2f7" id="themeColor" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" id="statusBarStyle" />
     <title>Frisbeegolf Scoreboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
       :root {
-        --bg: #0b1020;
-        --card: #131a2e;
-        --muted: #93a0c2;
-        --text: #f3f6ff;
-        --accent: #56d6a2;
-        --danger: #ff6b6b;
+        /* Dagsläge – neutral bas och blå accent för tydlighet utomhus */
+        --bg: #eef2f7;
+        --bg-accent: #dfe7f2;
+        --card: #ffffff;
+        --muted: #475467;
+        --text: #101828;
+        --accent: #1849a9;
+        --accent-soft: #e8f0ff;
+        --danger: #b42318;
+        --danger-bg: #fff1f0;
+        --border: #344054;
+        --border-soft: #d0d5dd;
+        --input: #ffffff;
+        --row: #f8fafc;
+        --row-border: #d0d5dd;
+        --primary-bg: #1849a9;
+        --primary-border: #123b8c;
+        --primary-text: #ffffff;
+        --ghost-bg: #ffffff;
+        --pill-bg: #f8fafc;
+        --toast-bg: #101828;
+        --toast-border: #101828;
+        --toast-text: #ffffff;
+        --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+        --play-border: #1849a9;
+        --howto-bg: #eff4ff;
+        --howto-border: #84adff;
+        --best-bg: #eff4ff;
+        --best-border: #84adff;
+        --table-sticky: #ffffff;
+        --score-well: #ffffff;
+        --font-display: "Inter", "Segoe UI", system-ui, sans-serif;
+        --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-top: env(safe-area-inset-top, 0px);
+        color-scheme: light;
       }
+
+      html[data-theme="dark"] {
+        --bg: #0c111d;
+        --bg-accent: #16213d;
+        --card: #151d2f;
+        --muted: #c5ccda;
+        --text: #f5f7fa;
+        --accent: #84adff;
+        --accent-soft: rgba(132, 173, 255, 0.15);
+        --danger: #ff8d85;
+        --danger-bg: #3c1f24;
+        --border: #98a2b3;
+        --border-soft: #344054;
+        --input: #101828;
+        --row: #101828;
+        --row-border: #344054;
+        --primary-bg: #528bff;
+        --primary-border: #84adff;
+        --primary-text: #081225;
+        --ghost-bg: transparent;
+        --pill-bg: #101828;
+        --toast-bg: #528bff;
+        --toast-border: #84adff;
+        --toast-text: #081225;
+        --shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+        --play-border: #84adff;
+        --howto-bg: rgba(132, 173, 255, 0.12);
+        --howto-border: #84adff;
+        --best-bg: rgba(132, 173, 255, 0.15);
+        --best-border: #84adff;
+        --table-sticky: #151d2f;
+        --score-well: #0c111d;
+        color-scheme: dark;
+      }
+
       * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
       body {
         margin: 0;
-        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        background: radial-gradient(1000px 600px at 20% -10%, #1b2450, var(--bg));
+        font-family: var(--font-body);
+        background:
+          radial-gradient(900px 420px at 0% -10%, var(--bg-accent), transparent 60%),
+          radial-gradient(700px 380px at 100% 0%, rgba(24, 73, 169, 0.1), transparent 55%),
+          var(--bg);
         color: var(--text);
+        min-height: 100dvh;
+        padding-bottom: calc(12px + var(--safe-bottom));
+        font-weight: 600;
       }
       .container {
-        max-width: 1100px;
+        max-width: 720px;
         margin: 0 auto;
-        padding: 20px;
+        padding: calc(16px + var(--safe-top)) 14px 20px;
+        display: flex;
+        flex-direction: column;
       }
+      .container.playing #setupCard { order: 3; }
+      .container.playing #playCard { order: 1; }
+      .container.playing #standingsCard { order: 2; }
+
       .card {
-        background: linear-gradient(180deg, #1a2240 0%, var(--card) 100%);
-        border: 1px solid #2b3866;
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 14px;
+        background: var(--card);
+        border: 1px solid var(--border-soft);
+        border-radius: 20px;
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow);
       }
-      h1 { margin: 0 0 8px 0; font-size: 28px; }
-      .muted { color: var(--muted); margin: 0 0 12px 0; }
-      .row { display: flex; gap: 10px; flex-wrap: wrap; }
-      input, button, select {
-        border: 1px solid #31406f;
-        background: #0f1530;
-        color: var(--text);
-        border-radius: 10px;
-        padding: 10px 12px;
-        font-size: 15px;
-      }
-      input, select { min-width: 180px; }
-      button { cursor: pointer; }
-      button.primary { background: #173f34; border-color: #2d8f70; }
-      button.ghost { background: transparent; }
-      button.danger { background: #3f1f27; border-color: #8a3648; }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        overflow: hidden;
-        border-radius: 12px;
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 6px;
       }
-      th, td {
-        border-bottom: 1px solid #28355e;
-        text-align: center;
-        padding: 10px 6px;
+      .topbar h1 {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
       }
-      th:first-child, td:first-child {
-        text-align: left;
-        padding-left: 12px;
+      h1 {
+        margin: 0 0 6px;
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 5.2vw, 1.85rem);
+        letter-spacing: -0.03em;
+        font-weight: 800;
+        line-height: 1.1;
       }
-      .score-cell { min-width: 110px; }
-      .score-controls {
-        display: inline-flex;
-        gap: 6px;
-        align-items: center;
-      }
-      .score-val {
+      .brand-mark {
         display: inline-block;
-        min-width: 28px;
-        font-weight: 700;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        margin-right: 8px;
+        vertical-align: 2px;
+        box-shadow: inset 0 0 0 3px var(--accent-soft);
       }
-      .small-btn {
-        padding: 4px 8px;
-        border-radius: 8px;
-      }
-      .leader {
-        color: var(--accent);
-        font-weight: 700;
-      }
-      .footer {
-        margin-top: 10px;
-        font-size: 14px;
+      .muted { color: var(--muted); margin: 0 0 12px; line-height: 1.45; font-weight: 600; }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
         color: var(--muted);
+        font-weight: 700;
+        flex: 1 1 140px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
       }
-
-      .active-player-row td {
-        background: rgba(86, 214, 162, 0.12);
-      }
-
-      .quick-score-card {
-        border: 2px solid #3a5fa4;
-      }
-
-      .status-line {
+      input, button, select {
+        border: 2px solid var(--border);
+        background: var(--input);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 12px 14px;
         font-size: 16px;
-        margin: 0 0 10px 0;
+        min-height: 48px;
+        font-weight: 700;
+        font-family: inherit;
+      }
+      input, select { width: 100%; min-width: 0; }
+      input::placeholder { color: #5f7a6b; opacity: 1; }
+      html[data-theme="dark"] input::placeholder { color: #8eab9a; }
+      button {
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        font-weight: 800;
+      }
+      button:active { transform: scale(0.98); }
+      button.primary {
+        background: var(--primary-bg);
+        border-color: var(--primary-border);
+        color: var(--primary-text);
+      }
+      button.ghost { background: var(--ghost-bg); }
+      button.danger {
+        background: var(--danger-bg);
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .setup-grid { display: grid; gap: 10px; }
+      .setup-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        background: var(--row);
+      }
+      .setting-copy { min-width: 0; }
+      .setting-label {
+        display: block;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .setting-help {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      #themeSelect {
+        flex: 0 0 155px;
+        width: 155px;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+
+      .howto {
+        margin: 0;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: var(--howto-bg);
+        border: 2px solid var(--howto-border);
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+        font-weight: 600;
+      }
+      .howto strong { color: var(--text); font-weight: 800; }
+
+      .leader { color: var(--accent); font-weight: 800; }
+
+      .play-card {
+        border: 2px solid var(--play-border);
+        position: sticky;
+        top: calc(8px + var(--safe-top));
+        z-index: 30;
+      }
+      .container.settings-open .play-card {
+        position: static;
       }
 
       .hole-nav {
-        display: flex;
+        display: grid;
+        grid-template-columns: 52px 1fr 52px;
         gap: 8px;
         align-items: center;
         margin-bottom: 10px;
       }
-
+      .hole-nav button {
+        padding: 0;
+        font-size: 22px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+      }
       .hole-pill {
-        font-weight: 700;
-        padding: 8px 12px;
-        border-radius: 10px;
-        background: #101c40;
-        border: 1px solid #31406f;
+        text-align: center;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 18px;
+        padding: 12px 10px;
+        border-radius: 14px;
+        background: var(--pill-bg);
+        border: 2px solid var(--border);
+        letter-spacing: -0.02em;
       }
-
-      .quick-actions {
+      .hole-progress {
         display: flex;
+        gap: 6px;
+        margin: 0 0 14px;
+        overflow-x: auto;
+        padding: 2px 1px 4px;
+        scrollbar-width: none;
+      }
+      .hole-progress::-webkit-scrollbar { display: none; }
+      .dot {
+        flex: 0 0 auto;
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        border: 1px solid var(--border-soft);
+        background: var(--card);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        min-height: 0;
+        font-family: var(--font-display);
+      }
+      .dot.current {
+        background: var(--primary-bg);
+        border-color: var(--primary-border);
+        color: var(--primary-text);
+        transform: translateY(-1px);
+      }
+      .dot.scored {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .player-list {
+        display: grid;
         gap: 10px;
-        flex-wrap: wrap;
+        margin-bottom: 12px;
       }
-
-      .big-btn {
-        font-size: 20px;
+      .player-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
+        border-radius: 16px;
+        background: var(--row);
+        border: 1px solid var(--row-border);
+      }
+      .player-meta { min-width: 0; }
+      .player-name {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .player-sub {
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 3px;
         font-weight: 700;
-        min-width: 72px;
+      }
+      .score-controls {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        background: var(--score-well);
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 4px;
+      }
+      .score-btn {
+        width: 48px;
+        height: 48px;
+        min-height: 48px;
+        padding: 0;
+        font-size: 24px;
+        font-weight: 900;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        border-width: 2px;
+      }
+      .score-btn:not(.primary) {
+        background: var(--row);
+        border-color: var(--border-soft);
+      }
+      .score-val {
+        min-width: 42px;
+        text-align: center;
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: var(--text);
+        letter-spacing: -0.03em;
       }
 
-      @media (max-width: 700px) {
-        .container { padding: 12px; }
-        th, td { padding: 8px 4px; }
-        .score-cell { min-width: 92px; }
+      .bulk-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .bulk-row .hint {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+        text-align: center;
+        font-weight: 700;
+      }
+      #incAll {
+        border-radius: 16px;
+        font-size: 16px;
+        letter-spacing: -0.01em;
+      }
 
-        .quick-score-card {
-          position: sticky;
-          bottom: 8px;
-          z-index: 20;
-          backdrop-filter: blur(4px);
-        }
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .section-title h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .standings { display: grid; gap: 8px; }
+      .standing-row {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        padding: 11px 12px;
+        border-radius: 14px;
+        background: var(--row);
+        border: 1px solid var(--border-soft);
+      }
+      .standing-row.best {
+        background: var(--best-bg);
+        border-color: var(--best-border);
+      }
+      .rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        background: var(--card);
+        border: 1px solid var(--border-soft);
+        color: var(--text);
+        font-weight: 800;
+        font-size: 13px;
+        font-family: var(--font-display);
+      }
+      .standing-row.best .rank {
+        background: var(--primary-bg);
+        border-color: var(--primary-border);
+        color: var(--primary-text);
+      }
+      .standing-name {
+        font-weight: 800;
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .standing-total {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 20px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+
+      details.table-wrap,
+      #setupDetails {
+        border-top: 2px solid var(--border-soft);
+        margin-top: 12px;
+        padding-top: 10px;
+      }
+      #setupDetails {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      details.table-wrap > summary,
+      #setupDetails > summary {
+        cursor: pointer;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+        list-style: none;
+        padding: 6px 0;
+        user-select: none;
+      }
+      details.table-wrap > summary::-webkit-details-marker,
+      #setupDetails > summary::-webkit-details-marker { display: none; }
+      details.table-wrap > summary::after,
+      #setupDetails > summary::after {
+        content: " ▾";
+        color: var(--accent);
+      }
+      details.table-wrap[open] > summary::after,
+      #setupDetails[open] > summary::after { content: " ▴"; }
+
+      #setupCard.compact h1 { font-size: 1.15rem; margin-bottom: 0; }
+      #setupCard.compact #introText,
+      #setupCard.compact #howto { display: none; }
+      #setupCard.compact #setupDetails { margin-top: 4px; }
+      #setupCard.compact .brand-mark { display: none; }
+      #setupSummary { display: none; }
+      #setupCard.compact #setupSummary { display: block; }
+
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 2px solid var(--border);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 480px;
+      }
+      th, td {
+        border-bottom: 1px solid var(--border-soft);
+        text-align: center;
+        padding: 10px 6px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      th:first-child, td:first-child {
+        text-align: left;
+        padding-left: 10px;
+        position: sticky;
+        left: 0;
+        background: var(--table-sticky);
+        z-index: 1;
+      }
+      .tiny-controls {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .tiny-btn {
+        width: 32px;
+        height: 32px;
+        min-height: 32px;
+        padding: 0;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .footer {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 18px 10px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(18px + var(--safe-bottom));
+        transform: translateX(-50%) translateY(120%);
+        background: var(--toast-bg);
+        border: 2px solid var(--toast-border);
+        color: var(--toast-text);
+        padding: 11px 16px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 800;
+        z-index: 50;
+        opacity: 0;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        pointer-events: none;
+        max-width: calc(100% - 32px);
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      @media (min-width: 720px) {
+        .container { max-width: 900px; padding: 24px; }
+        .play-card { position: static; }
+        .bulk-row { grid-template-columns: 1fr auto; align-items: center; }
+        .bulk-row .hint { text-align: left; }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="card">
-        <h1>🥏 Frisbeegolf Scoreboard</h1>
-        <p class="muted">Välj antal banor, lägg till spelare, räkna poäng med + / −. Sparas i localStorage.</p>
-
-        <div class="row" style="margin-bottom: 10px">
-          <label>
-            Antal banor:
-            <input id="holesInput" type="number" min="1" max="36" value="9" />
-          </label>
-          <button id="applyHoles" class="primary">Sätt banor</button>
-          <button id="resetAll" class="danger">Nollställ allt</button>
+      <div class="card" id="setupCard">
+        <div class="topbar">
+          <h1><span class="brand-mark" aria-hidden="true"></span><span id="setupTitleText">Frisbeegolf</span></h1>
         </div>
+        <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
 
-        <div class="row">
-          <input id="playerName" placeholder="Spelarnamn" />
-          <button id="addPlayer" class="primary">Lägg till spelare</button>
-        </div>
+        <p class="howto" id="howto">
+          <strong>Så funkar det:</strong> sätt antal hål → lägg till spelare → använd + / − per spelare på varje hål.
+        </p>
+
+        <details id="setupDetails" open>
+          <summary id="setupSummary">Inställningar &amp; spelare</summary>
+          <div class="setup-grid" style="margin-top: 12px">
+            <div class="setting-row">
+              <div class="setting-copy">
+                <span class="setting-label">Utseende</span>
+                <span class="setting-help">Soläge syns bäst utomhus</span>
+              </div>
+              <select id="themeSelect" aria-label="Välj utseende">
+                <option value="sun">Soläge</option>
+                <option value="dark">Kvällsläge</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <label>
+                Antal hål
+                <input id="holesInput" type="number" inputmode="numeric" min="1" max="36" value="9" />
+              </label>
+              <button id="applyHoles" class="primary" style="flex: 0 0 auto">Uppdatera</button>
+            </div>
+
+            <div class="row">
+              <label>
+                Spelarnamn
+                <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" autocapitalize="words" enterkeyhint="done" />
+              </label>
+              <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
+            </div>
+
+            <div class="setup-actions">
+              <button id="resetAll" class="danger">Radera hela spelet</button>
+            </div>
+          </div>
+        </details>
       </div>
 
-      <div id="quickScoring" class="card quick-score-card" hidden>
-        <p id="activeStatus" class="status-line"></p>
-
-        <div class="row" style="margin-bottom: 10px;">
-          <label>
-            Välj spelare:
-            <select id="activePlayerSelect"></select>
-          </label>
+      <div id="playCard" class="card play-card" hidden>
+        <div class="section-title" style="margin-bottom: 10px;">
+          <h2>Poäng</h2>
         </div>
-
         <div class="hole-nav">
-          <button id="prevHole" class="ghost">← Hål</button>
-          <span id="holePill" class="hole-pill"></span>
-          <button id="nextHole" class="ghost">Hål →</button>
+          <button id="prevHole" class="ghost" aria-label="Föregående hål">←</button>
+          <div id="holePill" class="hole-pill">Hål 1</div>
+          <button id="nextHole" class="ghost" aria-label="Nästa hål">→</button>
         </div>
 
-        <div class="quick-actions">
-          <button id="quickDec" class="big-btn">−</button>
-          <button id="quickInc" class="big-btn primary">+</button>
+        <div id="holeProgress" class="hole-progress" aria-label="Hoppa till hål"></div>
+
+        <div id="playerList" class="player-list"></div>
+
+        <div class="bulk-row">
+          <p class="hint">Alla kastade? Lägg +1 på hela gruppen.</p>
           <button id="incAll" class="primary">+1 till alla på hålet</button>
         </div>
       </div>
 
-      <div class="card">
-        <div id="leaderBoard"></div>
-        <div style="overflow-x:auto; margin-top: 10px;">
-          <table id="scoreTable"></table>
+      <div class="card" id="standingsCard">
+        <div class="section-title">
+          <h2>Ställning</h2>
         </div>
-        <div class="footer">Lägre totalpoäng leder.</div>
+        <div id="standings" class="standings">
+          <p class="empty">Lägg till spelare för att börja.</p>
+        </div>
+
+        <details class="table-wrap" id="tableDetails">
+          <summary>Visa hela resultattabellen</summary>
+          <div class="table-scroll">
+            <table id="scoreTable"></table>
+          </div>
+          <div class="footer">Lägre totalpoäng leder. Tryck på ett hål i tabellen för att hoppa dit.</div>
+        </details>
       </div>
     </div>
 
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
     <script>
       const STORAGE_KEY = 'frisbee-scoreboard-v2';
+      const THEME_KEY = 'frisbee-scoreboard-theme';
+
+      function getSavedTheme() {
+        try {
+          const t = localStorage.getItem(THEME_KEY);
+          if (t === 'dark' || t === 'sun') return t;
+        } catch {}
+        return 'sun'; // default: outdoor sunlight
+      }
+
+      function applyTheme(theme) {
+        const mode = theme === 'dark' ? 'dark' : 'sun';
+        document.documentElement.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'sun');
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.value = mode;
+        const themeColor = document.getElementById('themeColor');
+        const statusBar = document.getElementById('statusBarStyle');
+        if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#eef2f7' : '#0c111d');
+        if (statusBar) statusBar.setAttribute('content', mode === 'sun' ? 'default' : 'black-translucent');
+        try { localStorage.setItem(THEME_KEY, mode); } catch {}
+      }
+
+      applyTheme(getSavedTheme());
 
       const loaded = loadState();
       const state = loaded || {
@@ -213,20 +729,28 @@
       const playerNameInput = document.getElementById('playerName');
       const addPlayerBtn = document.getElementById('addPlayer');
       const table = document.getElementById('scoreTable');
-      const leaderBoard = document.getElementById('leaderBoard');
-
-      const quickScoring = document.getElementById('quickScoring');
-      const activeStatus = document.getElementById('activeStatus');
-      const activePlayerSelect = document.getElementById('activePlayerSelect');
+      const standings = document.getElementById('standings');
+      const playCard = document.getElementById('playCard');
+      const playerList = document.getElementById('playerList');
       const holePill = document.getElementById('holePill');
+      const holeProgress = document.getElementById('holeProgress');
       const prevHoleBtn = document.getElementById('prevHole');
       const nextHoleBtn = document.getElementById('nextHole');
-      const quickIncBtn = document.getElementById('quickInc');
-      const quickDecBtn = document.getElementById('quickDec');
       const incAllBtn = document.getElementById('incAll');
+      const toastEl = document.getElementById('toast');
+      const howto = document.getElementById('howto');
+      const setupCard = document.getElementById('setupCard');
+      const setupDetails = document.getElementById('setupDetails');
+      const setupSummary = document.getElementById('setupSummary');
+      const setupTitleText = document.getElementById('setupTitleText');
+      const container = document.querySelector('.container');
+
+      let toastTimer = null;
+      let allowSetupCollapse = false;
 
       holesInput.value = state.holes;
       normalizeState();
+      allowSetupCollapse = state.players.length > 0;
 
       function saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -237,7 +761,6 @@
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) return JSON.parse(raw);
 
-          // fallback from older version
           const oldRaw = localStorage.getItem('frisbee-scoreboard-v1');
           if (oldRaw) {
             const old = JSON.parse(oldRaw);
@@ -274,7 +797,6 @@
         while (player.scores.length < state.holes) player.scores.push(0);
         if (player.scores.length > state.holes) player.scores = player.scores.slice(0, state.holes);
 
-        // Never allow negative or invalid score values.
         player.scores = player.scores.map((value) => {
           const n = Number(value);
           if (!Number.isFinite(n)) return 0;
@@ -286,34 +808,23 @@
         return player.scores.reduce((a, b) => a + b, 0);
       }
 
-      function getActivePlayer() {
-        return state.players.find(p => p.id === state.activePlayerId) || null;
+      function holeHasAnyScore(holeIndex) {
+        return state.players.some(p => (p.scores[holeIndex] || 0) > 0);
       }
 
-      function updateLeaders() {
-        if (state.players.length === 0) {
-          leaderBoard.innerHTML = '<p class="muted">Ingen spelare ännu.</p>';
-          return;
-        }
-
-        const totals = state.players.map(p => ({ name: p.name, total: total(p) }));
-        const best = Math.min(...totals.map(t => t.total));
-        const leaders = totals.filter(t => t.total === best).map(t => t.name);
-
-        leaderBoard.innerHTML = `<strong>Ledare:</strong> <span class="leader">${leaders.join(', ')}</span> <span class="muted">(${best} poäng)</span>`;
-      }
-
-      function setActivePlayer(playerId) {
-        if (!state.players.some(p => p.id === playerId)) return;
-        state.activePlayerId = playerId;
+      function showToast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1600);
       }
 
       function incrementScore(playerId, hole, delta) {
         const player = state.players.find(p => p.id === playerId);
         if (!player) return;
         if (hole < 0 || hole >= state.holes) return;
-
         player.scores[hole] = Math.max(0, player.scores[hole] + delta);
+        state.activePlayerId = playerId;
       }
 
       function incrementAllPlayersOnActiveHole() {
@@ -322,28 +833,112 @@
         }
       }
 
-      function renderQuickScoring() {
+      function renderStandings() {
+        if (state.players.length === 0) {
+          standings.innerHTML = '<p class="empty">Lägg till spelare för att börja.</p>';
+          return;
+        }
+
+        const ranked = [...state.players]
+          .map(p => ({ id: p.id, name: p.name, total: total(p) }))
+          .sort((a, b) => a.total - b.total || a.name.localeCompare(b.name, 'sv'));
+
+        const best = ranked[0].total;
+
+        standings.innerHTML = ranked.map((p, i) => `
+          <div class="standing-row ${p.total === best ? 'best' : ''}">
+            <span class="rank">${i + 1}</span>
+            <span class="standing-name ${p.total === best ? 'leader' : ''}">${escapeHtml(p.name)}</span>
+            <span class="standing-total">${p.total}</span>
+          </div>
+        `).join('');
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;');
+      }
+
+      function formatPlayerName(value) {
+        return value
+          .trim()
+          .replace(/\s+/g, ' ')
+          .replace(/(^|[\s-])(\p{L})/gu, (_, separator, letter) => {
+            return separator + letter.toLocaleUpperCase('sv-SE');
+          });
+      }
+
+      function renderPlayCard() {
         const hasPlayers = state.players.length > 0;
-        quickScoring.hidden = !hasPlayers;
+        playCard.hidden = !hasPlayers;
+        howto.hidden = hasPlayers;
+        setupCard.classList.toggle('compact', hasPlayers);
+        container.classList.toggle('playing', hasPlayers);
+        setupTitleText.textContent = hasPlayers ? 'Inställningar' : 'Frisbeegolf';
+        setupSummary.textContent = hasPlayers
+          ? `${state.players.length} spelare · ${state.holes} hål`
+          : 'Inställningar & spelare';
+
+        if (hasPlayers && allowSetupCollapse) {
+          setupDetails.open = false;
+        } else if (hasPlayers && !allowSetupCollapse) {
+          // Keep open while adding more players
+          setupDetails.open = true;
+        }
+        if (!hasPlayers) {
+          setupDetails.open = true;
+          allowSetupCollapse = false;
+        }
+        container.classList.toggle('settings-open', setupDetails.open);
 
         if (!hasPlayers) return;
 
-        activePlayerSelect.innerHTML = state.players
-          .map((p) => `<option value="${p.id}" ${p.id === state.activePlayerId ? 'selected' : ''}>${p.name}</option>`)
-          .join('');
-
-        const activePlayer = getActivePlayer();
-        const activeName = activePlayer ? activePlayer.name : 'Ingen';
-
-        activeStatus.innerHTML = `Du ändrar nu: <strong class="leader">${activeName}</strong>`;
         holePill.textContent = `Hål ${state.activeHole + 1} av ${state.holes}`;
+        prevHoleBtn.disabled = state.activeHole <= 0;
+        nextHoleBtn.disabled = state.activeHole >= state.holes - 1;
+
+        const dots = [];
+        for (let i = 0; i < state.holes; i++) {
+          const classes = ['dot'];
+          if (i === state.activeHole) classes.push('current');
+          else if (holeHasAnyScore(i)) classes.push('scored');
+          dots.push(`<button type="button" class="${classes.join(' ')}" data-jump-hole="${i}" aria-label="Gå till hål ${i + 1}">${i + 1}</button>`);
+        }
+        holeProgress.innerHTML = dots.join('');
+
+        // Scroll current hole into view in the chip strip
+        const currentDot = holeProgress.querySelector('.dot.current');
+        if (currentDot && currentDot.scrollIntoView) {
+          currentDot.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+        }
+
+        playerList.innerHTML = state.players.map((p) => {
+          const holeScore = p.scores[state.activeHole] || 0;
+          return `
+            <div class="player-row">
+              <div class="player-meta">
+                <div class="player-name">${escapeHtml(p.name)}</div>
+                <div class="player-sub">Total: ${total(p)}</div>
+              </div>
+              <div class="score-controls">
+                <button class="score-btn" data-action="dec" data-player="${p.id}" aria-label="Minska poäng för ${escapeHtml(p.name)}">−</button>
+                <span class="score-val">${holeScore}</span>
+                <button class="score-btn primary" data-action="inc" data-player="${p.id}" aria-label="Öka poäng för ${escapeHtml(p.name)}">+</button>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
 
-      function render() {
-        normalizeState();
-
+      function renderTable() {
         const headerCells = ['<th>Spelare</th>'];
-        for (let i = 1; i <= state.holes; i++) headerCells.push(`<th>H${i}</th>`);
+        for (let i = 1; i <= state.holes; i++) {
+          const active = i - 1 === state.activeHole ? ' style="color:var(--accent)"' : '';
+          headerCells.push(`<th${active}><button class="ghost tiny-btn" data-jump-hole="${i - 1}" style="width:auto;min-height:28px;padding:4px 6px;font-size:12px">H${i}</button></th>`);
+        }
         headerCells.push('<th>Total</th>');
         headerCells.push('<th></th>');
 
@@ -351,47 +946,54 @@
 
         for (const player of state.players) {
           const scoreCells = player.scores.map((s, idx) => {
-            return `<td class="score-cell">
-              <div class="score-controls">
-                <button class="small-btn" data-action="dec" data-player="${player.id}" data-hole="${idx}">−</button>
-                <span class="score-val">${s}</span>
-                <button class="small-btn" data-action="inc" data-player="${player.id}" data-hole="${idx}">+</button>
+            const active = idx === state.activeHole ? ' style="background:var(--accent-soft)"' : '';
+            return `<td${active}>
+              <div class="tiny-controls">
+                <button class="tiny-btn" data-action="dec" data-player="${player.id}" data-hole="${idx}">−</button>
+                <span>${s}</span>
+                <button class="tiny-btn" data-action="inc" data-player="${player.id}" data-hole="${idx}">+</button>
               </div>
             </td>`;
           }).join('');
 
-          const rowClass = player.id === state.activePlayerId ? 'active-player-row' : '';
-
-          html += `<tr class="${rowClass}">
-            <td>${player.name}</td>
+          html += `<tr>
+            <td>${escapeHtml(player.name)}</td>
             ${scoreCells}
             <td><strong>${total(player)}</strong></td>
-            <td><button class="small-btn danger" data-action="remove-player" data-player="${player.id}">Ta bort</button></td>
+            <td><button class="tiny-btn danger" data-action="remove-player" data-player="${player.id}" title="Ta bort">×</button></td>
           </tr>`;
         }
 
         html += '</tbody>';
         table.innerHTML = html;
+      }
 
-        renderQuickScoring();
-        updateLeaders();
+      function render() {
+        normalizeState();
+        renderPlayCard();
+        renderStandings();
+        renderTable();
         saveState();
       }
 
       applyHolesBtn.addEventListener('click', () => {
         const v = Number(holesInput.value);
         if (!Number.isInteger(v) || v < 1 || v > 36) {
-          alert('Ange antal banor mellan 1 och 36.');
+          alert('Ange antal hål mellan 1 och 36.');
           return;
         }
         state.holes = v;
         state.activeHole = Math.min(state.activeHole, state.holes - 1);
+        showToast(`${v} hål`);
         render();
       });
 
       addPlayerBtn.addEventListener('click', () => {
-        const name = playerNameInput.value.trim();
-        if (!name) return;
+        const name = formatPlayerName(playerNameInput.value);
+        if (!name) {
+          playerNameInput.focus();
+          return;
+        }
         const newPlayer = {
           id: crypto.randomUUID(),
           name,
@@ -400,7 +1002,11 @@
         state.players.push(newPlayer);
         if (!state.activePlayerId) state.activePlayerId = newPlayer.id;
         playerNameInput.value = '';
+        allowSetupCollapse = false;
+        setupDetails.open = true;
+        showToast(`${name} tillagd`);
         render();
+        playerNameInput.focus();
       });
 
       playerNameInput.addEventListener('keydown', (e) => {
@@ -408,48 +1014,75 @@
       });
 
       resetBtn.addEventListener('click', () => {
-        if (!confirm('Nollställa hela rundan?')) return;
+        if (!confirm('Radera hela spelet? Alla namn, spelare och poäng försvinner.')) return;
+        state.holes = 9;
         state.players = [];
         state.activePlayerId = null;
         state.activeHole = 0;
+        holesInput.value = state.holes;
         saveState();
+        showToast('Spelet raderat');
         render();
       });
 
-      activePlayerSelect.addEventListener('change', (e) => {
-        setActivePlayer(e.target.value);
-        render();
-      });
+      function collapseSetupSoon() {
+        if (state.players.length === 0) return;
+        allowSetupCollapse = true;
+        setupDetails.open = false;
+      }
 
       prevHoleBtn.addEventListener('click', () => {
         state.activeHole = Math.max(0, state.activeHole - 1);
+        collapseSetupSoon();
         render();
       });
 
       nextHoleBtn.addEventListener('click', () => {
         state.activeHole = Math.min(state.holes - 1, state.activeHole + 1);
-        render();
-      });
-
-      quickIncBtn.addEventListener('click', () => {
-        if (!state.activePlayerId) return;
-        incrementScore(state.activePlayerId, state.activeHole, 1);
-        render();
-      });
-
-      quickDecBtn.addEventListener('click', () => {
-        if (!state.activePlayerId) return;
-        incrementScore(state.activePlayerId, state.activeHole, -1);
+        collapseSetupSoon();
         render();
       });
 
       incAllBtn.addEventListener('click', () => {
         if (state.players.length === 0) return;
         incrementAllPlayersOnActiveHole();
+        collapseSetupSoon();
+        showToast('+1 till alla');
+        render();
+      });
+
+      holeProgress.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-jump-hole]');
+        if (!btn) return;
+        const hole = Number(btn.dataset.jumpHole);
+        if (!Number.isInteger(hole)) return;
+        state.activeHole = hole;
+        collapseSetupSoon();
+        render();
+      });
+
+      playerList.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const playerId = btn.dataset.player;
+        if (action === 'inc') incrementScore(playerId, state.activeHole, 1);
+        if (action === 'dec') incrementScore(playerId, state.activeHole, -1);
+        collapseSetupSoon();
         render();
       });
 
       table.addEventListener('click', (e) => {
+        const jump = e.target.closest('[data-jump-hole]');
+        if (jump) {
+          const hole = Number(jump.dataset.jumpHole);
+          if (Number.isInteger(hole)) {
+            state.activeHole = hole;
+            render();
+          }
+          return;
+        }
+
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
 
@@ -459,10 +1092,12 @@
         if (!player) return;
 
         if (action === 'remove-player') {
+          if (!confirm(`Ta bort ${player.name}?`)) return;
           state.players = state.players.filter(p => p.id !== playerId);
           if (state.activePlayerId === playerId) {
             state.activePlayerId = state.players[0]?.id || null;
           }
+          showToast(`${player.name} borttagen`);
           render();
           return;
         }
@@ -470,12 +1105,20 @@
         const hole = Number(btn.dataset.hole);
         if (!Number.isInteger(hole)) return;
 
-        setActivePlayer(playerId);
         state.activeHole = hole;
-
         if (action === 'inc') incrementScore(playerId, hole, 1);
         if (action === 'dec') incrementScore(playerId, hole, -1);
         render();
+      });
+
+      document.getElementById('themeSelect').addEventListener('change', (event) => {
+        const mode = event.target.value === 'dark' ? 'dark' : 'sun';
+        applyTheme(mode);
+        showToast(mode === 'dark' ? 'Kvällsläge' : 'Soläge – bäst utomhus');
+      });
+
+      setupDetails.addEventListener('toggle', () => {
+        container.classList.toggle('settings-open', setupDetails.open);
       });
 
       render();
