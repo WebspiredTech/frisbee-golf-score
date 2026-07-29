@@ -9,7 +9,7 @@
     <title>Frisbeegolf Scoreboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
       :root {
         /* Dagsläge – neutral bas och blå accent för tydlighet utomhus */
@@ -43,8 +43,8 @@
         --best-border: #84adff;
         --table-sticky: #ffffff;
         --score-well: #ffffff;
-        --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
-        --font-body: "Outfit", "Segoe UI", system-ui, sans-serif;
+        --font-display: "Inter", "Segoe UI", system-ui, sans-serif;
+        --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
         --safe-bottom: env(safe-area-inset-bottom, 0px);
         --safe-top: env(safe-area-inset-top, 0px);
         color-scheme: light;
@@ -130,19 +130,6 @@
         flex: 1;
         min-width: 0;
       }
-      #themeToggle,
-      #themeTogglePlay {
-        flex: 0 0 auto;
-        min-height: 40px;
-        padding: 8px 12px;
-        font-size: 13px;
-        font-weight: 800;
-        border-width: 2px;
-        white-space: nowrap;
-        border-radius: 999px;
-        letter-spacing: 0.01em;
-      }
-
       h1 {
         margin: 0 0 6px;
         font-family: var(--font-display);
@@ -218,6 +205,37 @@
         grid-template-columns: 1fr;
         gap: 8px;
       }
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        background: var(--row);
+      }
+      .setting-copy { min-width: 0; }
+      .setting-label {
+        display: block;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .setting-help {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      #themeSelect {
+        flex: 0 0 155px;
+        width: 155px;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 14px;
+      }
 
       .howto {
         margin: 0;
@@ -239,6 +257,9 @@
         position: sticky;
         top: calc(8px + var(--safe-top));
         z-index: 30;
+      }
+      .container.settings-open .play-card {
+        position: static;
       }
 
       .hole-nav {
@@ -488,6 +509,7 @@
       #setupCard.compact #introText,
       #setupCard.compact #howto { display: none; }
       #setupCard.compact #setupDetails { margin-top: 4px; }
+      #setupCard.compact .brand-mark { display: none; }
       #setupSummary { display: none; }
       #setupCard.compact #setupSummary { display: block; }
 
@@ -582,8 +604,7 @@
     <div class="container">
       <div class="card" id="setupCard">
         <div class="topbar">
-          <h1><span class="brand-mark" aria-hidden="true"></span>Frisbeegolf</h1>
-          <button id="themeToggle" type="button" class="ghost" aria-pressed="true" title="Byt mellan soläge och kvällsläge">Sol</button>
+          <h1><span class="brand-mark" aria-hidden="true"></span><span id="setupTitleText">Frisbeegolf</span></h1>
         </div>
         <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
 
@@ -594,6 +615,17 @@
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
           <div class="setup-grid" style="margin-top: 12px">
+            <div class="setting-row">
+              <div class="setting-copy">
+                <span class="setting-label">Utseende</span>
+                <span class="setting-help">Soläge syns bäst utomhus</span>
+              </div>
+              <select id="themeSelect" aria-label="Välj utseende">
+                <option value="sun">Soläge</option>
+                <option value="dark">Kvällsläge</option>
+              </select>
+            </div>
+
             <div class="row">
               <label>
                 Antal hål
@@ -620,7 +652,6 @@
       <div id="playCard" class="card play-card" hidden>
         <div class="section-title" style="margin-bottom: 10px;">
           <h2>Poäng</h2>
-          <button id="themeTogglePlay" type="button" class="ghost">Sol</button>
         </div>
         <div class="hole-nav">
           <button id="prevHole" class="ghost" aria-label="Föregående hål">←</button>
@@ -673,18 +704,8 @@
       function applyTheme(theme) {
         const mode = theme === 'dark' ? 'dark' : 'sun';
         document.documentElement.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'sun');
-        const labels = mode === 'sun' ? 'Sol' : 'Kväll';
-        const pressed = mode === 'sun' ? 'true' : 'false';
-        const title = mode === 'sun'
-          ? 'Soläge på (bra i solljus). Tryck för kvällsläge.'
-          : 'Kvällsläge på. Tryck för soläge.';
-        for (const id of ['themeToggle', 'themeTogglePlay']) {
-          const toggle = document.getElementById(id);
-          if (!toggle) continue;
-          toggle.textContent = labels;
-          toggle.setAttribute('aria-pressed', pressed);
-          toggle.title = title;
-        }
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.value = mode;
         const themeColor = document.getElementById('themeColor');
         const statusBar = document.getElementById('statusBarStyle');
         if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#eef2f7' : '#0c111d');
@@ -721,6 +742,7 @@
       const setupCard = document.getElementById('setupCard');
       const setupDetails = document.getElementById('setupDetails');
       const setupSummary = document.getElementById('setupSummary');
+      const setupTitleText = document.getElementById('setupTitleText');
       const container = document.querySelector('.container');
 
       let toastTimer = null;
@@ -846,8 +868,9 @@
         howto.hidden = hasPlayers;
         setupCard.classList.toggle('compact', hasPlayers);
         container.classList.toggle('playing', hasPlayers);
+        setupTitleText.textContent = hasPlayers ? 'Inställningar' : 'Frisbeegolf';
         setupSummary.textContent = hasPlayers
-          ? `Inställningar (${state.players.length} spelare, ${state.holes} hål)`
+          ? `${state.players.length} spelare · ${state.holes} hål`
           : 'Inställningar & spelare';
 
         if (hasPlayers && allowSetupCollapse) {
@@ -860,6 +883,7 @@
           setupDetails.open = true;
           allowSetupCollapse = false;
         }
+        container.classList.toggle('settings-open', setupDetails.open);
 
         if (!hasPlayers) return;
 
@@ -1076,14 +1100,15 @@
         render();
       });
 
-      function toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'sun';
-        applyTheme(current === 'sun' ? 'dark' : 'sun');
-        showToast(current === 'sun' ? 'Kvällsläge' : 'Soläge – bäst i solen');
-      }
+      document.getElementById('themeSelect').addEventListener('change', (event) => {
+        const mode = event.target.value === 'dark' ? 'dark' : 'sun';
+        applyTheme(mode);
+        showToast(mode === 'dark' ? 'Kvällsläge' : 'Soläge – bäst utomhus');
+      });
 
-      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-      document.getElementById('themeTogglePlay').addEventListener('click', toggleTheme);
+      setupDetails.addEventListener('toggle', () => {
+        container.classList.toggle('settings-open', setupDetails.open);
+      });
 
       render();
     </script>
