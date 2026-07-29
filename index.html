@@ -1597,8 +1597,15 @@
         } else {
           state.elapsedMs = Number(state.elapsedMs);
         }
-        if (!Number.isFinite(Number(state.timerStartedAt))) state.timerStartedAt = null;
-        else state.timerStartedAt = Number(state.timerStartedAt);
+        if (
+          state.timerStartedAt == null
+          || !Number.isFinite(Number(state.timerStartedAt))
+          || Number(state.timerStartedAt) <= 0
+        ) {
+          state.timerStartedAt = null;
+        } else {
+          state.timerStartedAt = Number(state.timerStartedAt);
+        }
         if (state.players.length === 0) {
           if (state.gameStarted && state.timerStartedAt) {
             state.elapsedMs = getElapsedMs(state);
