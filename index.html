@@ -129,6 +129,9 @@
         margin-bottom: 6px;
       }
       .topbar h1 {
+        display: flex;
+        align-items: center;
+        gap: 7px;
         margin: 0;
         flex: 1;
         min-width: 0;
@@ -201,6 +204,16 @@
         cursor: not-allowed;
         transform: none;
       }
+      .ui-icon {
+        width: 17px;
+        height: 17px;
+        flex: 0 0 auto;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+      }
       #addPlayer::before {
         content: "+";
         display: inline-block;
@@ -249,6 +262,9 @@
         background: var(--accent-soft);
       }
       .quick-start-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
         margin: 0;
         color: var(--text);
         font-size: 15px;
@@ -295,6 +311,9 @@
         background: var(--row);
       }
       #optionalSettings > summary {
+        display: flex;
+        align-items: center;
+        gap: 7px;
         cursor: pointer;
         list-style: none;
         padding: 13px;
@@ -632,6 +651,9 @@
         margin-bottom: 10px;
       }
       .section-title h2 {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         margin: 0;
         font-family: var(--font-display);
         font-size: 12px;
@@ -1089,13 +1111,25 @@
     <div class="container">
       <div class="card" id="setupCard">
         <div class="topbar" id="setupTopbar" hidden>
-          <h1><span id="setupTitleText">Inställningar</span></h1>
+          <h1>
+            <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"></path>
+              <path d="M1 14h6M9 8h6M17 16h6"></path>
+            </svg>
+            <span id="setupTitleText">Inställningar</span>
+          </h1>
         </div>
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
           <div class="setup-grid" style="margin-top: 12px">
             <div class="quick-start">
-              <p class="quick-start-title">Vilka spelar?</p>
+              <p class="quick-start-title">
+                <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M16 3.5a4 4 0 0 1 0 7.5M18 15a4 4 0 0 1 4 4v2"></path>
+                </svg>
+                Vilka spelar?
+              </p>
               <div class="row">
                 <label>
                   Spelarnamn
@@ -1108,7 +1142,13 @@
             </div>
 
             <details id="optionalSettings">
-              <summary>Fler val – bana, datum och antal hål</summary>
+              <summary>
+                <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"></path>
+                  <path d="M1 14h6M9 8h6M17 16h6"></path>
+                </svg>
+                Fler val – bana, datum och antal hål
+              </summary>
               <div class="optional-settings-content">
                 <div class="row">
                   <label>
@@ -1167,7 +1207,14 @@
 
       <div id="playCard" class="card play-card" hidden>
         <div class="section-title" style="margin-bottom: 10px;">
-          <h2>Poäng</h2>
+          <h2>
+            <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 3v3M21 12h-3M12 21v-3M3 12h3"></path>
+            </svg>
+            Poäng
+          </h2>
           <span id="activeGameName" class="game-name-chip"></span>
         </div>
         <div class="hole-nav">
@@ -1200,7 +1247,12 @@
 
       <div class="card" id="standingsCard">
         <div class="section-title">
-          <h2 id="standingsTitle">Ställning</h2>
+          <h2 id="standingsTitle">
+            <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 20v-6h4v6M10 20V8h4v12M16 20V4h4v16M2 20h20"></path>
+            </svg>
+            <span id="standingsTitleText">Ställning</span>
+          </h2>
         </div>
         <div id="standings" class="standings">
           <p class="empty">Lägg till spelare för att börja.</p>
@@ -1217,7 +1269,14 @@
 
       <section class="card" id="historyCard">
         <div class="section-title">
-          <h2>Historik</h2>
+          <h2>
+            <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2M3 4v5h5"></path>
+              <path d="M5 8a9 9 0 1 1-1 8"></path>
+            </svg>
+            Historik
+          </h2>
           <span id="historyCount" class="history-count">0</span>
         </div>
         <div class="history-toolbar" id="historyToolbar">
@@ -1304,7 +1363,7 @@
       const winnerCard = document.getElementById('winnerCard');
       const winnerTitle = document.getElementById('winnerTitle');
       const winnerSummary = document.getElementById('winnerSummary');
-      const standingsTitle = document.getElementById('standingsTitle');
+      const standingsTitle = document.getElementById('standingsTitleText');
       const activeGameName = document.getElementById('activeGameName');
       const historyCount = document.getElementById('historyCount');
       const historyCard = document.getElementById('historyCard');
