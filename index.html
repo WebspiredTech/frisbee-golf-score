@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#e7efe9" id="themeColor" />
+    <meta name="theme-color" content="#eef2f7" id="themeColor" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" id="statusBarStyle" />
     <title>Frisbeegolf Scoreboard</title>
@@ -12,35 +12,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
     <style>
       :root {
-        /* Soläge – hög kontrast + mer polish */
-        --bg: #e7efe9;
-        --bg-accent: #d5e8db;
+        /* Dagsläge – neutral bas och blå accent för tydlighet utomhus */
+        --bg: #eef2f7;
+        --bg-accent: #dfe7f2;
         --card: #ffffff;
-        --muted: #2f4a3a;
-        --text: #0d1f16;
-        --accent: #0b6b3c;
-        --accent-soft: #dff3e8;
-        --danger: #a61b1b;
-        --danger-bg: #ffe8e6;
-        --border: #173528;
-        --border-soft: #9bb5a6;
+        --muted: #475467;
+        --text: #101828;
+        --accent: #1849a9;
+        --accent-soft: #e8f0ff;
+        --danger: #b42318;
+        --danger-bg: #fff1f0;
+        --border: #344054;
+        --border-soft: #d0d5dd;
         --input: #ffffff;
-        --row: #f4faf6;
-        --row-border: #173528;
-        --primary-bg: #0b6b3c;
-        --primary-border: #084e2c;
+        --row: #f8fafc;
+        --row-border: #d0d5dd;
+        --primary-bg: #1849a9;
+        --primary-border: #123b8c;
         --primary-text: #ffffff;
         --ghost-bg: #ffffff;
-        --pill-bg: #f4faf6;
-        --toast-bg: #0b6b3c;
-        --toast-border: #084e2c;
+        --pill-bg: #f8fafc;
+        --toast-bg: #101828;
+        --toast-border: #101828;
         --toast-text: #ffffff;
-        --shadow: 0 8px 0 rgba(13, 31, 22, 0.08);
-        --play-border: #0b6b3c;
-        --howto-bg: #dff3e8;
-        --howto-border: #0b6b3c;
-        --best-bg: #dff3e8;
-        --best-border: #0b6b3c;
+        --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+        --play-border: #1849a9;
+        --howto-bg: #eff4ff;
+        --howto-border: #84adff;
+        --best-bg: #eff4ff;
+        --best-border: #84adff;
         --table-sticky: #ffffff;
         --score-well: #ffffff;
         --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
@@ -51,36 +51,36 @@
       }
 
       html[data-theme="dark"] {
-        --bg: #0c1411;
-        --bg-accent: #15241c;
-        --card: #15231c;
-        --muted: #b7cfc1;
-        --text: #f2fbf5;
-        --accent: #4fd18f;
-        --accent-soft: rgba(79, 209, 143, 0.14);
+        --bg: #0c111d;
+        --bg-accent: #16213d;
+        --card: #151d2f;
+        --muted: #c5ccda;
+        --text: #f5f7fa;
+        --accent: #84adff;
+        --accent-soft: rgba(132, 173, 255, 0.15);
         --danger: #ff8d85;
-        --danger-bg: #3a1d1c;
-        --border: #4fd18f;
-        --border-soft: #2d4639;
-        --input: #0f1a15;
-        --row: #0f1a15;
-        --row-border: #3d5a4a;
-        --primary-bg: #178a4f;
-        --primary-border: #4fd18f;
-        --primary-text: #04140c;
+        --danger-bg: #3c1f24;
+        --border: #98a2b3;
+        --border-soft: #344054;
+        --input: #101828;
+        --row: #101828;
+        --row-border: #344054;
+        --primary-bg: #528bff;
+        --primary-border: #84adff;
+        --primary-text: #081225;
         --ghost-bg: transparent;
-        --pill-bg: #0f1a15;
-        --toast-bg: #178a4f;
-        --toast-border: #4fd18f;
-        --toast-text: #04140c;
+        --pill-bg: #101828;
+        --toast-bg: #528bff;
+        --toast-border: #84adff;
+        --toast-text: #081225;
         --shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
-        --play-border: #4fd18f;
-        --howto-bg: rgba(79, 209, 143, 0.12);
-        --howto-border: #4fd18f;
-        --best-bg: rgba(79, 209, 143, 0.16);
-        --best-border: #4fd18f;
-        --table-sticky: #15231c;
-        --score-well: #0c1411;
+        --play-border: #84adff;
+        --howto-bg: rgba(132, 173, 255, 0.12);
+        --howto-border: #84adff;
+        --best-bg: rgba(132, 173, 255, 0.15);
+        --best-border: #84adff;
+        --table-sticky: #151d2f;
+        --score-well: #0c111d;
         color-scheme: dark;
       }
 
@@ -91,7 +91,7 @@
         font-family: var(--font-body);
         background:
           radial-gradient(900px 420px at 0% -10%, var(--bg-accent), transparent 60%),
-          radial-gradient(700px 380px at 100% 0%, rgba(11, 107, 60, 0.12), transparent 55%),
+          radial-gradient(700px 380px at 100% 0%, rgba(24, 73, 169, 0.1), transparent 55%),
           var(--bg);
         color: var(--text);
         min-height: 100dvh;
@@ -111,8 +111,8 @@
 
       .card {
         background: var(--card);
-        border: 2px solid var(--border);
-        border-radius: 18px;
+        border: 1px solid var(--border-soft);
+        border-radius: 20px;
         padding: 14px;
         margin-bottom: 12px;
         box-shadow: var(--shadow);
@@ -153,12 +153,13 @@
       }
       .brand-mark {
         display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 3px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
         background: var(--accent);
         margin-right: 8px;
         vertical-align: 2px;
+        box-shadow: inset 0 0 0 3px var(--accent-soft);
       }
       .muted { color: var(--muted); margin: 0 0 12px; line-height: 1.45; font-weight: 600; }
       .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
@@ -234,7 +235,7 @@
       .leader { color: var(--accent); font-weight: 800; }
 
       .play-card {
-        border: 3px solid var(--play-border);
+        border: 2px solid var(--play-border);
         position: sticky;
         top: calc(8px + var(--safe-top));
         z-index: 30;
@@ -278,8 +279,8 @@
         flex: 0 0 auto;
         width: 42px;
         height: 42px;
-        border-radius: 14px;
-        border: 2px solid var(--border);
+        border-radius: 13px;
+        border: 1px solid var(--border-soft);
         background: var(--card);
         color: var(--text);
         font-size: 14px;
@@ -315,8 +316,7 @@
         padding: 12px;
         border-radius: 16px;
         background: var(--row);
-        border: 2px solid var(--row-border);
-        box-shadow: inset 4px 0 0 var(--accent);
+        border: 1px solid var(--row-border);
       }
       .player-meta { min-width: 0; }
       .player-name {
@@ -339,7 +339,7 @@
         gap: 8px;
         align-items: center;
         background: var(--score-well);
-        border: 2px solid var(--border);
+        border: 1px solid var(--border-soft);
         border-radius: 16px;
         padding: 4px;
       }
@@ -356,8 +356,8 @@
         border-width: 2px;
       }
       .score-btn:not(.primary) {
-        background: transparent;
-        border-color: transparent;
+        background: var(--row);
+        border-color: var(--border-soft);
       }
       .score-val {
         min-width: 42px;
@@ -414,7 +414,7 @@
         padding: 11px 12px;
         border-radius: 14px;
         background: var(--row);
-        border: 2px solid var(--border-soft);
+        border: 1px solid var(--border-soft);
       }
       .standing-row.best {
         background: var(--best-bg);
@@ -427,7 +427,7 @@
         display: grid;
         place-items: center;
         background: var(--card);
-        border: 2px solid var(--border);
+        border: 1px solid var(--border-soft);
         color: var(--text);
         font-weight: 800;
         font-size: 13px;
@@ -583,7 +583,7 @@
       <div class="card" id="setupCard">
         <div class="topbar">
           <h1><span class="brand-mark" aria-hidden="true"></span>Frisbeegolf</h1>
-          <button id="themeToggle" type="button" class="ghost" aria-pressed="true" title="Byt mellan soläge och kvällsläge">Soläge</button>
+          <button id="themeToggle" type="button" class="ghost" aria-pressed="true" title="Byt mellan soläge och kvällsläge">Sol</button>
         </div>
         <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
 
@@ -620,7 +620,7 @@
       <div id="playCard" class="card play-card" hidden>
         <div class="section-title" style="margin-bottom: 10px;">
           <h2>Poäng</h2>
-          <button id="themeTogglePlay" type="button" class="ghost" style="min-height:40px;padding:6px 10px;font-size:13px;">Soläge</button>
+          <button id="themeTogglePlay" type="button" class="ghost">Sol</button>
         </div>
         <div class="hole-nav">
           <button id="prevHole" class="ghost" aria-label="Föregående hål">←</button>
@@ -673,7 +673,7 @@
       function applyTheme(theme) {
         const mode = theme === 'dark' ? 'dark' : 'sun';
         document.documentElement.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'sun');
-        const labels = mode === 'sun' ? 'Soläge' : 'Kväll';
+        const labels = mode === 'sun' ? 'Sol' : 'Kväll';
         const pressed = mode === 'sun' ? 'true' : 'false';
         const title = mode === 'sun'
           ? 'Soläge på (bra i solljus). Tryck för kvällsläge.'
@@ -687,7 +687,7 @@
         }
         const themeColor = document.getElementById('themeColor');
         const statusBar = document.getElementById('statusBarStyle');
-        if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#e7efe9' : '#0c1411');
+        if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#eef2f7' : '#0c111d');
         if (statusBar) statusBar.setAttribute('content', mode === 'sun' ? 'default' : 'black-translucent');
         try { localStorage.setItem(THEME_KEY, mode); } catch {}
       }
