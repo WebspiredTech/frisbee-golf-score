@@ -556,6 +556,14 @@
         font-size: 16px;
         letter-spacing: -0.01em;
       }
+      #pauseGame {
+        width: 100%;
+        margin-top: 10px;
+      }
+      #pauseGame .ui-icon {
+        margin-right: 6px;
+        vertical-align: -3px;
+      }
 
       .winner-card {
         position: relative;
@@ -1231,6 +1239,13 @@
           <p class="hint">Alla kastade? Lägg +1 på hela gruppen.</p>
           <button id="incAll" class="primary">+1 till alla på hålet</button>
         </div>
+        <button id="pauseGame" type="button" class="ghost">
+          <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+            <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+          </svg>
+          Pausa spelet
+        </button>
       </div>
 
       <section id="winnerCard" class="card winner-card" hidden aria-live="polite">
@@ -1354,6 +1369,7 @@
       const prevHoleBtn = document.getElementById('prevHole');
       const nextHoleBtn = document.getElementById('nextHole');
       const incAllBtn = document.getElementById('incAll');
+      const pauseGameBtn = document.getElementById('pauseGame');
       const toastEl = document.getElementById('toast');
       const setupCard = document.getElementById('setupCard');
       const setupTopbar = document.getElementById('setupTopbar');
@@ -1526,6 +1542,10 @@
 
       function holeHasAnyScore(holeIndex) {
         return state.players.some(p => (p.scores[holeIndex] || 0) > 0);
+      }
+
+      function gameHasScores(game) {
+        return game.players.some(player => player.scores.some(score => score > 0));
       }
 
       function isRoundComplete() {
@@ -1952,6 +1972,11 @@
           const playerScores = game.players.map((player) => {
             return `<span class="history-player">${escapeHtml(player.name)} <strong>${total(player)}</strong></span>`;
           }).join('');
+          const statusText = game.complete
+            ? 'Klar'
+            : (!game.gameStarted && gameHasScores(game)
+                ? 'Pausat'
+                : (game.gameStarted ? 'Pågår' : 'Ej startat'));
 
           const meta = [
             formatHistoryDate(game.playedAt || game.completedAt || game.updatedAt),
@@ -1967,7 +1992,7 @@
                   <h3 class="history-name">${escapeHtml(game.name)}</h3>
                   <p class="history-meta">${escapeHtml(meta)}</p>
                 </div>
-                <span class="status-pill ${game.complete ? '' : 'in-progress'}">${game.complete ? 'Klar' : 'Pågår'}</span>
+                <span class="status-pill ${game.complete ? '' : 'in-progress'}">${statusText}</span>
               </div>
               <p class="history-result">${escapeHtml(winnerText)}</p>
               <div class="history-players">${playerScores}</div>
@@ -2036,7 +2061,7 @@
         `).join('');
         startRoundBtn.disabled = !hasPlayers;
         startRoundBtn.hidden = isPlaying;
-        startRoundBtn.textContent = `Börja spela · ${state.holes} hål`;
+        startRoundBtn.textContent = `${gameHasScores(state) ? 'Fortsätt spela' : 'Börja spela'} · ${state.holes} hål`;
         newGameBtn.hidden = !hasPlayers;
         resetBtn.hidden = !hasPlayers;
 
@@ -2286,6 +2311,16 @@
         collapseSetupSoon();
         showToast('+1 till alla');
         render();
+      });
+
+      pauseGameBtn.addEventListener('click', () => {
+        state.gameStarted = false;
+        allowSetupCollapse = false;
+        render();
+        showToast('Spelet är pausat och sparat');
+        requestAnimationFrame(() => {
+          setupCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
 
       holeProgress.addEventListener('click', (e) => {
