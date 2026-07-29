@@ -202,6 +202,86 @@
       }
 
       .setup-grid { display: grid; gap: 10px; }
+      .quick-start {
+        display: grid;
+        gap: 10px;
+        padding: 13px;
+        border: 2px solid var(--accent);
+        border-radius: 16px;
+        background: var(--accent-soft);
+      }
+      .quick-start-title {
+        margin: 0;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 900;
+      }
+      .quick-start-help {
+        margin: -5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .setup-players {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .setup-player {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 36px;
+        padding: 5px 7px 5px 10px;
+        border: 1px solid var(--border-soft);
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .setup-player button {
+        width: 26px;
+        height: 26px;
+        min-height: 26px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: var(--row);
+        color: var(--muted);
+        font-size: 17px;
+      }
+      #startRound {
+        width: 100%;
+        min-height: 54px;
+        font-size: 17px;
+      }
+      #optionalSettings {
+        padding: 0;
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        background: var(--row);
+      }
+      #optionalSettings > summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 13px;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+        user-select: none;
+      }
+      #optionalSettings > summary::-webkit-details-marker { display: none; }
+      #optionalSettings > summary::after {
+        content: " ▾";
+        color: var(--accent);
+      }
+      #optionalSettings[open] > summary::after { content: " ▴"; }
+      .optional-settings-content {
+        display: grid;
+        gap: 10px;
+        padding: 0 12px 12px;
+      }
       .game-details {
         display: grid;
         grid-template-columns: 1fr;
@@ -983,64 +1063,75 @@
         <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
 
         <p class="howto" id="howto">
-          <strong>Så funkar det:</strong> sätt antal hål → lägg till spelare → använd + / − per spelare på varje hål.
+          <strong>Snabbstart:</strong> lägg till spelarna och börja. 9 hål och dagens datum är redan valt.
         </p>
 
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
           <div class="setup-grid" style="margin-top: 12px">
-            <div class="row">
-              <label>
-                Namn på spelet
-                <input id="gameName" placeholder="t.ex. Söndagsrundan" autocomplete="off" enterkeyhint="done" />
-              </label>
-              <button id="saveGameName" class="primary" style="flex: 0 0 auto">Spara namn</button>
-            </div>
-
-            <div class="game-details">
-              <label>
-                Bana
-                <input id="courseName" list="courseSuggestions" placeholder="t.ex. Järva Discgolfpark" autocomplete="off" />
-              </label>
-              <label>
-                Plats
-                <input id="gameLocation" list="locationSuggestions" placeholder="t.ex. Stockholm" autocomplete="off" />
-              </label>
-              <label>
-                Datum
-                <input id="playedAt" type="date" />
-              </label>
-              <button id="saveGameDetails" type="button" class="ghost">Spara baninfo</button>
-              <datalist id="courseSuggestions"></datalist>
-              <datalist id="locationSuggestions"></datalist>
-            </div>
-
-            <div class="setting-row">
-              <div class="setting-copy">
-                <span class="setting-label">Utseende</span>
-                <span class="setting-help">Soläge syns bäst utomhus</span>
+            <div class="quick-start">
+              <p class="quick-start-title">Vilka spelar?</p>
+              <p class="quick-start-help">Det räcker att skriva namnen – resten är valfritt.</p>
+              <div class="row">
+                <label>
+                  Spelarnamn
+                  <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" autocapitalize="words" enterkeyhint="done" />
+                </label>
+                <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
               </div>
-              <select id="themeSelect" aria-label="Välj utseende">
-                <option value="sun">Soläge</option>
-                <option value="dark">Kvällsläge</option>
-              </select>
+              <div id="setupPlayerList" class="setup-players"></div>
+              <button id="startRound" type="button" class="primary" disabled>Börja spela · 9 hål</button>
             </div>
 
-            <div class="row">
-              <label>
-                Antal hål
-                <input id="holesInput" type="number" inputmode="numeric" min="1" max="36" value="9" />
-              </label>
-              <button id="applyHoles" class="primary" style="flex: 0 0 auto">Uppdatera</button>
-            </div>
+            <details id="optionalSettings">
+              <summary>Fler val – bana, datum och antal hål</summary>
+              <div class="optional-settings-content">
+                <div class="row">
+                  <label>
+                    Namn på spelet
+                    <input id="gameName" placeholder="t.ex. Söndagsrundan" autocomplete="off" enterkeyhint="done" />
+                  </label>
+                  <button id="saveGameName" class="primary" style="flex: 0 0 auto">Spara namn</button>
+                </div>
 
-            <div class="row">
-              <label>
-                Spelarnamn
-                <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" autocapitalize="words" enterkeyhint="done" />
-              </label>
-              <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
-            </div>
+                <div class="game-details">
+                  <label>
+                    Bana
+                    <input id="courseName" list="courseSuggestions" placeholder="t.ex. Järva Discgolfpark" autocomplete="off" />
+                  </label>
+                  <label>
+                    Plats
+                    <input id="gameLocation" list="locationSuggestions" placeholder="t.ex. Stockholm" autocomplete="off" />
+                  </label>
+                  <label>
+                    Datum
+                    <input id="playedAt" type="date" />
+                  </label>
+                  <button id="saveGameDetails" type="button" class="ghost">Spara baninfo</button>
+                  <datalist id="courseSuggestions"></datalist>
+                  <datalist id="locationSuggestions"></datalist>
+                </div>
+
+                <div class="row">
+                  <label>
+                    Antal hål
+                    <input id="holesInput" type="number" inputmode="numeric" min="1" max="36" value="9" />
+                  </label>
+                  <button id="applyHoles" class="primary" style="flex: 0 0 auto">Uppdatera</button>
+                </div>
+
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <span class="setting-label">Utseende</span>
+                    <span class="setting-help">Soläge syns bäst utomhus</span>
+                  </div>
+                  <select id="themeSelect" aria-label="Välj utseende">
+                    <option value="sun">Soläge</option>
+                    <option value="dark">Kvällsläge</option>
+                  </select>
+                </div>
+              </div>
+            </details>
 
             <div class="setup-actions">
               <button id="newGame" class="primary">Starta nytt spel</button>
@@ -1161,6 +1252,8 @@
       const resetBtn = document.getElementById('resetAll');
       const playerNameInput = document.getElementById('playerName');
       const addPlayerBtn = document.getElementById('addPlayer');
+      const startRoundBtn = document.getElementById('startRound');
+      const setupPlayerList = document.getElementById('setupPlayerList');
       const gameNameInput = document.getElementById('gameName');
       const saveGameNameBtn = document.getElementById('saveGameName');
       const courseNameInput = document.getElementById('courseName');
@@ -1170,6 +1263,7 @@
       const newGameBtn = document.getElementById('newGame');
       const table = document.getElementById('scoreTable');
       const standings = document.getElementById('standings');
+      const standingsCard = document.getElementById('standingsCard');
       const playCard = document.getElementById('playCard');
       const playerList = document.getElementById('playerList');
       const holePill = document.getElementById('holePill');
@@ -1229,6 +1323,7 @@
         return {
           gameId: crypto.randomUUID(),
           gameName: defaultGameName(),
+          gameStarted: false,
           courseName: '',
           location: '',
           playedAt: getTodayDate(),
@@ -1258,6 +1353,7 @@
             return {
               gameId: crypto.randomUUID(),
               gameName: defaultGameName(),
+              gameStarted: (old.players || []).length > 0,
               courseName: '',
               location: '',
               playedAt: getTodayDate(),
@@ -1305,6 +1401,10 @@
         if (!state.updatedAt) state.updatedAt = state.createdAt;
         if (!Number.isInteger(state.holes) || state.holes < 1) state.holes = 9;
         if (!Array.isArray(state.players)) state.players = [];
+        if (typeof state.gameStarted !== 'boolean') {
+          state.gameStarted = state.players.length > 0;
+        }
+        if (state.players.length === 0) state.gameStarted = false;
 
         state.players.forEach(ensureScoreLength);
 
@@ -1364,6 +1464,7 @@
         const snapshot = {
           id: state.gameId,
           name: state.gameName,
+          gameStarted: state.gameStarted,
           courseName: state.courseName,
           location: state.location,
           playedAt: state.playedAt,
@@ -1808,8 +1909,10 @@
 
       function renderPlayCard() {
         const hasPlayers = state.players.length > 0;
-        playCard.hidden = !hasPlayers;
-        howto.hidden = hasPlayers;
+        const isPlaying = hasPlayers && state.gameStarted;
+        playCard.hidden = !isPlaying;
+        standingsCard.hidden = !isPlaying;
+        howto.hidden = isPlaying;
         activeGameName.textContent = state.gameName;
         if (document.activeElement !== gameNameInput) {
           gameNameInput.value = state.gameName;
@@ -1823,26 +1926,37 @@
         if (document.activeElement !== playedAtInput) {
           playedAtInput.value = state.playedAt;
         }
-        setupCard.classList.toggle('compact', hasPlayers);
-        container.classList.toggle('playing', hasPlayers);
-        setupTitleText.textContent = hasPlayers ? 'Inställningar' : 'Frisbeegolf';
+        setupCard.classList.toggle('compact', isPlaying);
+        container.classList.toggle('playing', isPlaying);
+        setupTitleText.textContent = isPlaying ? 'Inställningar' : 'Frisbeegolf';
         setupSummary.textContent = hasPlayers
           ? `${state.players.length} spelare · ${state.holes} hål`
           : 'Inställningar & spelare';
+        setupPlayerList.innerHTML = state.players.map((player) => `
+          <span class="setup-player">
+            ${escapeHtml(player.name)}
+            <button type="button" data-setup-remove-player="${player.id}" aria-label="Ta bort ${escapeHtml(player.name)}">×</button>
+          </span>
+        `).join('');
+        startRoundBtn.disabled = !hasPlayers;
+        startRoundBtn.hidden = isPlaying;
+        startRoundBtn.textContent = `Börja spela · ${state.holes} hål`;
+        newGameBtn.hidden = !hasPlayers;
+        resetBtn.hidden = !hasPlayers;
 
-        if (hasPlayers && allowSetupCollapse) {
+        if (isPlaying && allowSetupCollapse) {
           setupDetails.open = false;
-        } else if (hasPlayers && !allowSetupCollapse) {
+        } else if (isPlaying && !allowSetupCollapse) {
           // Keep open while adding more players
           setupDetails.open = true;
         }
-        if (!hasPlayers) {
+        if (!isPlaying) {
           setupDetails.open = true;
           allowSetupCollapse = false;
         }
         container.classList.toggle('settings-open', setupDetails.open);
 
-        if (!hasPlayers) return;
+        if (!isPlaying) return;
 
         holePill.textContent = `Hål ${state.activeHole + 1} av ${state.holes}`;
         prevHoleBtn.disabled = state.activeHole <= 0;
@@ -1961,6 +2075,27 @@
 
       playerNameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') addPlayerBtn.click();
+      });
+
+      setupPlayerList.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-setup-remove-player]');
+        if (!button) return;
+        const playerId = button.dataset.setupRemovePlayer;
+        state.players = state.players.filter(player => player.id !== playerId);
+        if (state.activePlayerId === playerId) {
+          state.activePlayerId = state.players[0]?.id || null;
+        }
+        render();
+      });
+
+      startRoundBtn.addEventListener('click', () => {
+        if (state.players.length === 0) return;
+        state.gameStarted = true;
+        allowSetupCollapse = true;
+        render();
+        requestAnimationFrame(() => {
+          playCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
 
       function saveGameName() {
@@ -2145,6 +2280,7 @@
         replaceCurrentGame({
           gameId: game.id,
           gameName: game.name,
+          gameStarted: game.gameStarted !== false,
           courseName: game.courseName || '',
           location: game.location || '',
           playedAt: game.playedAt || game.createdAt?.slice(0, 10) || getTodayDate(),
