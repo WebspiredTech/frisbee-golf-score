@@ -389,6 +389,30 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .play-meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        min-width: 0;
+      }
+      .game-duration {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex: 0 0 auto;
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+      .game-duration .ui-icon {
+        width: 13px;
+        height: 13px;
+      }
 
       .howto {
         margin: 0;
@@ -1223,7 +1247,16 @@
             </svg>
             Poäng
           </h2>
-          <span id="activeGameName" class="game-name-chip"></span>
+          <div class="play-meta">
+            <span id="activeGameName" class="game-name-chip"></span>
+            <span id="gameDuration" class="game-duration" aria-label="Speltid">
+              <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
+              <span id="gameDurationText">00:00</span>
+            </span>
+          </div>
         </div>
         <div class="hole-nav">
           <button id="prevHole" class="ghost" aria-label="Föregående hål">←</button>
@@ -1381,6 +1414,7 @@
       const winnerSummary = document.getElementById('winnerSummary');
       const standingsTitle = document.getElementById('standingsTitleText');
       const activeGameName = document.getElementById('activeGameName');
+      const gameDurationText = document.getElementById('gameDurationText');
       const historyCount = document.getElementById('historyCount');
       const historyCard = document.getElementById('historyCard');
       const historyToolbar = document.getElementById('historyToolbar');
@@ -1405,7 +1439,12 @@
 
       function saveState() {
         state.updatedAt = new Date().toISOString();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        const persistedState = {
+          ...state,
+          elapsedMs: getElapsedMs(state),
+          timerStartedAt: null
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedState));
         syncCurrentGameToHistory();
       }
 
@@ -1425,6 +1464,8 @@
           gameId: crypto.randomUUID(),
           gameName: defaultGameName(),
           gameStarted: false,
+          elapsedMs: 0,
+          timerStartedAt: null,
           courseName: '',
           location: '',
           playedAt: getTodayDate(),
@@ -1443,6 +1484,50 @@
         return local.toISOString().slice(0, 10);
       }
 
+      function getElapsedMs(game) {
+        const base = Number(game.elapsedMs ?? game.durationMs) || 0;
+        if (!game.timerStartedAt || !game.gameStarted) return Math.max(0, base);
+        const startedAt = Number(game.timerStartedAt);
+        const running = Number.isFinite(startedAt) ? Math.max(0, Date.now() - startedAt) : 0;
+        return Math.max(0, base + running);
+      }
+
+      function startGameTimer() {
+        if (!state.gameStarted || state.timerStartedAt || isRoundComplete()) return;
+        state.timerStartedAt = Date.now();
+      }
+
+      function stopGameTimer() {
+        if (!state.timerStartedAt) return;
+        state.elapsedMs = getElapsedMs(state);
+        state.timerStartedAt = null;
+      }
+
+      function formatLiveDuration(milliseconds) {
+        const totalSeconds = Math.floor(Math.max(0, milliseconds) / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return hours > 0
+          ? `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+          : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+
+      function updateDurationDisplay() {
+        gameDurationText.textContent = formatLiveDuration(getElapsedMs(state));
+      }
+
+      function formatHistoryDuration(milliseconds) {
+        const duration = Number(milliseconds) || 0;
+        if (duration <= 0) return '';
+        if (duration < 60000) return '<1 min';
+        const totalMinutes = Math.round(duration / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        if (hours === 0) return `${totalMinutes} min`;
+        return minutes === 0 ? `${hours} h` : `${hours} h ${minutes} min`;
+      }
+
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
@@ -1455,6 +1540,8 @@
               gameId: crypto.randomUUID(),
               gameName: defaultGameName(),
               gameStarted: (old.players || []).length > 0,
+              elapsedMs: 0,
+              timerStartedAt: null,
               courseName: '',
               location: '',
               playedAt: getTodayDate(),
@@ -1505,7 +1592,20 @@
         if (typeof state.gameStarted !== 'boolean') {
           state.gameStarted = state.players.length > 0;
         }
-        if (state.players.length === 0) state.gameStarted = false;
+        if (!Number.isFinite(Number(state.elapsedMs)) || Number(state.elapsedMs) < 0) {
+          state.elapsedMs = 0;
+        } else {
+          state.elapsedMs = Number(state.elapsedMs);
+        }
+        if (!Number.isFinite(Number(state.timerStartedAt))) state.timerStartedAt = null;
+        else state.timerStartedAt = Number(state.timerStartedAt);
+        if (state.players.length === 0) {
+          if (state.gameStarted && state.timerStartedAt) {
+            state.elapsedMs = getElapsedMs(state);
+            state.timerStartedAt = null;
+          }
+          state.gameStarted = false;
+        }
 
         state.players.forEach(ensureScoreLength);
 
@@ -1570,6 +1670,7 @@
           id: state.gameId,
           name: state.gameName,
           gameStarted: state.gameStarted,
+          durationMs: getElapsedMs(state),
           courseName: state.courseName,
           location: state.location,
           playedAt: state.playedAt,
@@ -1652,13 +1753,14 @@
         const bestScore = Math.min(...state.players.map(total));
         const winners = state.players.filter(player => total(player) === bestScore);
         const winnerNames = winners.map(player => player.name);
+        const duration = formatHistoryDuration(getElapsedMs(state));
 
         if (winners.length === 1) {
           winnerTitle.textContent = `${winnerNames[0]} vann!`;
-          winnerSummary.textContent = `${bestScore} kast totalt`;
+          winnerSummary.textContent = `${bestScore} kast totalt${duration ? ` · ${duration}` : ''}`;
         } else {
           winnerTitle.textContent = 'Delad seger!';
-          winnerSummary.textContent = `${winnerNames.join(' och ')} vann med ${bestScore} kast`;
+          winnerSummary.textContent = `${winnerNames.join(' och ')} vann med ${bestScore} kast${duration ? ` · ${duration}` : ''}`;
         }
 
         const justCompleted = !wasRoundComplete;
@@ -1982,7 +2084,8 @@
             formatHistoryDate(game.playedAt || game.completedAt || game.updatedAt),
             game.courseName,
             game.location,
-            `${game.holes} hål`
+            `${game.holes} hål`,
+            formatHistoryDuration(game.durationMs)
           ].filter(Boolean).join(' · ');
 
           return `
@@ -2034,6 +2137,7 @@
         playCard.hidden = !isPlaying;
         standingsCard.hidden = !isPlaying;
         activeGameName.textContent = state.gameName;
+        updateDurationDisplay();
         if (document.activeElement !== gameNameInput) {
           gameNameInput.value = state.gameName;
         }
@@ -2153,6 +2257,8 @@
 
       function render() {
         normalizeState();
+        if (isRoundComplete()) stopGameTimer();
+        else if (state.gameStarted) startGameTimer();
         renderPlayCard();
         renderWinner();
         renderStandings();
@@ -2314,6 +2420,7 @@
       });
 
       pauseGameBtn.addEventListener('click', () => {
+        stopGameTimer();
         state.gameStarted = false;
         allowSetupCollapse = false;
         render();
@@ -2412,6 +2519,8 @@
           gameId: game.id,
           gameName: game.name,
           gameStarted: game.gameStarted !== false,
+          elapsedMs: Number(game.durationMs) || 0,
+          timerStartedAt: null,
           courseName: game.courseName || '',
           location: game.location || '',
           playedAt: game.playedAt || game.createdAt?.slice(0, 10) || getTodayDate(),
@@ -2443,6 +2552,12 @@
         selectedStatsPlayer = event.target.value;
         renderHistory();
       });
+
+      window.addEventListener('pagehide', () => {
+        saveState();
+      });
+
+      setInterval(updateDurationDisplay, 1000);
 
       render();
     </script>
