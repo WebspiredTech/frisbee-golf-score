@@ -37,7 +37,12 @@
         max-width: 720px;
         margin: 0 auto;
         padding: calc(16px + var(--safe-top)) 14px 20px;
+        display: flex;
+        flex-direction: column;
       }
+      .container.playing #setupCard { order: 3; }
+      .container.playing #playCard { order: 1; }
+      .container.playing #standingsCard { order: 2; }
       .card {
         background: linear-gradient(180deg, #1a2240 0%, var(--card) 100%);
         border: 1px solid var(--border);
@@ -156,13 +161,13 @@
       .hole-progress::-webkit-scrollbar { display: none; }
       .dot {
         flex: 0 0 auto;
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
         border-radius: 999px;
         border: 1px solid #31406f;
         background: #0f1530;
         color: var(--muted);
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         display: grid;
         place-items: center;
@@ -294,12 +299,19 @@
         font-variant-numeric: tabular-nums;
       }
 
-      details.table-wrap {
+      details.table-wrap,
+      #setupDetails {
         border-top: 1px solid #28355e;
         margin-top: 12px;
         padding-top: 10px;
       }
-      details.table-wrap > summary {
+      #setupDetails {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      details.table-wrap > summary,
+      #setupDetails > summary {
         cursor: pointer;
         color: var(--muted);
         font-size: 14px;
@@ -308,12 +320,24 @@
         padding: 6px 0;
         user-select: none;
       }
-      details.table-wrap > summary::-webkit-details-marker { display: none; }
-      details.table-wrap > summary::after {
+      details.table-wrap > summary::-webkit-details-marker,
+      #setupDetails > summary::-webkit-details-marker { display: none; }
+      details.table-wrap > summary::after,
+      #setupDetails > summary::after {
         content: " ▾";
         color: var(--accent);
       }
-      details.table-wrap[open] > summary::after { content: " ▴"; }
+      details.table-wrap[open] > summary::after,
+      #setupDetails[open] > summary::after { content: " ▴"; }
+
+      #setupCard.compact h1 { font-size: 1.15rem; margin-bottom: 0; }
+      #setupCard.compact #introText,
+      #setupCard.compact #howto { display: none; }
+      #setupCard.compact #setupDetails {
+        margin-top: 4px;
+      }
+      #setupSummary { display: none; }
+      #setupCard.compact #setupSummary { display: block; }
 
       .table-scroll {
         overflow-x: auto;
@@ -402,33 +426,36 @@
     <div class="container">
       <div class="card" id="setupCard">
         <h1>Frisbeegolf Scoreboard</h1>
-        <p class="muted">Enkel poängräkning för runda på banan. Allt sparas automatiskt i telefonen.</p>
+        <p class="muted" id="introText">Enkel poängräkning för runda på banan. Allt sparas automatiskt i telefonen.</p>
 
         <p class="howto" id="howto">
           <strong>Så funkar det:</strong> sätt antal hål → lägg till spelare → använd + / − per spelare på varje hål.
         </p>
 
-        <div class="setup-grid" style="margin-top: 12px">
-          <div class="row">
-            <label>
-              Antal hål
-              <input id="holesInput" type="number" inputmode="numeric" min="1" max="36" value="9" />
-            </label>
-            <button id="applyHoles" class="primary" style="flex: 0 0 auto">Uppdatera</button>
-          </div>
+        <details id="setupDetails" open>
+          <summary id="setupSummary">Inställningar &amp; spelare</summary>
+          <div class="setup-grid" style="margin-top: 12px">
+            <div class="row">
+              <label>
+                Antal hål
+                <input id="holesInput" type="number" inputmode="numeric" min="1" max="36" value="9" />
+              </label>
+              <button id="applyHoles" class="primary" style="flex: 0 0 auto">Uppdatera</button>
+            </div>
 
-          <div class="row">
-            <label>
-              Spelarnamn
-              <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" enterkeyhint="done" />
-            </label>
-            <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
-          </div>
+            <div class="row">
+              <label>
+                Spelarnamn
+                <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" enterkeyhint="done" />
+              </label>
+              <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
+            </div>
 
-          <div class="setup-actions">
-            <button id="resetAll" class="danger">Nollställ hela rundan</button>
+            <div class="setup-actions">
+              <button id="resetAll" class="danger">Nollställ hela rundan</button>
+            </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <div id="playCard" class="card play-card" hidden>
@@ -448,7 +475,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="standingsCard">
         <div class="section-title">
           <h2>Ställning</h2>
         </div>
@@ -495,11 +522,17 @@
       const incAllBtn = document.getElementById('incAll');
       const toastEl = document.getElementById('toast');
       const howto = document.getElementById('howto');
+      const setupCard = document.getElementById('setupCard');
+      const setupDetails = document.getElementById('setupDetails');
+      const setupSummary = document.getElementById('setupSummary');
+      const container = document.querySelector('.container');
 
       let toastTimer = null;
+      let allowSetupCollapse = false;
 
       holesInput.value = state.holes;
       normalizeState();
+      allowSetupCollapse = state.players.length > 0;
 
       function saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -615,6 +648,22 @@
         const hasPlayers = state.players.length > 0;
         playCard.hidden = !hasPlayers;
         howto.hidden = hasPlayers;
+        setupCard.classList.toggle('compact', hasPlayers);
+        container.classList.toggle('playing', hasPlayers);
+        setupSummary.textContent = hasPlayers
+          ? `Inställningar (${state.players.length} spelare, ${state.holes} hål)`
+          : 'Inställningar & spelare';
+
+        if (hasPlayers && allowSetupCollapse) {
+          setupDetails.open = false;
+        } else if (hasPlayers && !allowSetupCollapse) {
+          // Keep open while adding more players
+          setupDetails.open = true;
+        }
+        if (!hasPlayers) {
+          setupDetails.open = true;
+          allowSetupCollapse = false;
+        }
 
         if (!hasPlayers) return;
 
@@ -724,6 +773,8 @@
         state.players.push(newPlayer);
         if (!state.activePlayerId) state.activePlayerId = newPlayer.id;
         playerNameInput.value = '';
+        allowSetupCollapse = false;
+        setupDetails.open = true;
         showToast(`${name} tillagd`);
         render();
         playerNameInput.focus();
@@ -743,19 +794,28 @@
         render();
       });
 
+      function collapseSetupSoon() {
+        if (state.players.length === 0) return;
+        allowSetupCollapse = true;
+        setupDetails.open = false;
+      }
+
       prevHoleBtn.addEventListener('click', () => {
         state.activeHole = Math.max(0, state.activeHole - 1);
+        collapseSetupSoon();
         render();
       });
 
       nextHoleBtn.addEventListener('click', () => {
         state.activeHole = Math.min(state.holes - 1, state.activeHole + 1);
+        collapseSetupSoon();
         render();
       });
 
       incAllBtn.addEventListener('click', () => {
         if (state.players.length === 0) return;
         incrementAllPlayersOnActiveHole();
+        collapseSetupSoon();
         showToast('+1 till alla');
         render();
       });
@@ -766,6 +826,7 @@
         const hole = Number(btn.dataset.jumpHole);
         if (!Number.isInteger(hole)) return;
         state.activeHole = hole;
+        collapseSetupSoon();
         render();
       });
 
@@ -776,6 +837,7 @@
         const playerId = btn.dataset.player;
         if (action === 'inc') incrementScore(playerId, state.activeHole, 1);
         if (action === 'dec') incrementScore(playerId, state.activeHole, -1);
+        collapseSetupSoon();
         render();
       });
 
