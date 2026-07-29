@@ -108,6 +108,7 @@
       .container.playing #setupCard { order: 3; }
       .container.playing #playCard { order: 1; }
       .container.playing #standingsCard { order: 2; }
+      .container.playing #winnerCard { order: 0; }
 
       .card {
         background: var(--card);
@@ -409,6 +410,92 @@
         letter-spacing: -0.01em;
       }
 
+      .winner-card {
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        border: 2px solid #d99a08;
+        background:
+          radial-gradient(circle at 50% 0%, #fff4c2 0, transparent 48%),
+          var(--card);
+        padding: 22px 16px 18px;
+      }
+      html[data-theme="dark"] .winner-card {
+        background:
+          radial-gradient(circle at 50% 0%, rgba(255, 205, 71, 0.2) 0, transparent 52%),
+          var(--card);
+      }
+      .winner-trophy {
+        width: 82px;
+        height: 82px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 10px;
+        border-radius: 26px;
+        background: #ffcd47;
+        border: 3px solid #9f6a00;
+        box-shadow: 0 8px 0 rgba(159, 106, 0, 0.18);
+        font-size: 46px;
+        line-height: 1;
+        transform: rotate(-3deg);
+      }
+      .winner-kicker {
+        margin: 0 0 5px;
+        color: #855700;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      html[data-theme="dark"] .winner-kicker { color: #ffdc7a; }
+      .winner-title {
+        margin: 0;
+        color: var(--text);
+        font-family: var(--font-display);
+        font-size: clamp(1.65rem, 7vw, 2.15rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+      }
+      .winner-summary {
+        margin: 8px 0 15px;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .winner-card .ghost {
+        min-height: 44px;
+        padding: 9px 14px;
+      }
+      .confetti {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .confetti span {
+        position: absolute;
+        width: 9px;
+        height: 18px;
+        border-radius: 3px;
+        background: var(--accent);
+        animation: none;
+      }
+      .winner-card.celebrate .confetti span { animation: confetti-fall 1.6s ease-out both; }
+      .confetti span:nth-child(1) { left: 8%; top: -20px; background: #ffcd47; animation-delay: 0.05s; transform: rotate(18deg); }
+      .confetti span:nth-child(2) { left: 22%; top: -24px; background: #ef476f; animation-delay: 0.2s; transform: rotate(-28deg); }
+      .confetti span:nth-child(3) { left: 38%; top: -18px; background: #1849a9; animation-delay: 0.08s; transform: rotate(42deg); }
+      .confetti span:nth-child(4) { left: 62%; top: -26px; background: #14b86e; animation-delay: 0.16s; transform: rotate(-18deg); }
+      .confetti span:nth-child(5) { left: 78%; top: -20px; background: #ff8a34; animation-delay: 0.02s; transform: rotate(35deg); }
+      .confetti span:nth-child(6) { left: 91%; top: -22px; background: #8b5cf6; animation-delay: 0.24s; transform: rotate(-40deg); }
+      @keyframes confetti-fall {
+        0% { translate: 0 -8px; opacity: 0; }
+        18% { opacity: 1; }
+        100% { translate: 0 210px; rotate: 160deg; opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .confetti span { animation: none; display: none; }
+      }
+
       .section-title {
         display: flex;
         justify-content: space-between;
@@ -669,9 +756,21 @@
         </div>
       </div>
 
+      <section id="winnerCard" class="card winner-card" hidden aria-live="polite">
+        <div class="confetti" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="winner-trophy" aria-hidden="true">🏆</div>
+        <p class="winner-kicker">Rundan är klar</p>
+        <h2 id="winnerTitle" class="winner-title"></h2>
+        <p id="winnerSummary" class="winner-summary"></p>
+        <button id="showFinalResults" type="button" class="ghost">Se slutresultatet ↓</button>
+      </section>
+
       <div class="card" id="standingsCard">
         <div class="section-title">
-          <h2>Ställning</h2>
+          <h2 id="standingsTitle">Ställning</h2>
         </div>
         <div id="standings" class="standings">
           <p class="empty">Lägg till spelare för att börja.</p>
@@ -743,10 +842,15 @@
       const setupDetails = document.getElementById('setupDetails');
       const setupSummary = document.getElementById('setupSummary');
       const setupTitleText = document.getElementById('setupTitleText');
+      const winnerCard = document.getElementById('winnerCard');
+      const winnerTitle = document.getElementById('winnerTitle');
+      const winnerSummary = document.getElementById('winnerSummary');
+      const standingsTitle = document.getElementById('standingsTitle');
       const container = document.querySelector('.container');
 
       let toastTimer = null;
       let allowSetupCollapse = false;
+      let wasRoundComplete = false;
 
       holesInput.value = state.holes;
       normalizeState();
@@ -812,6 +916,13 @@
         return state.players.some(p => (p.scores[holeIndex] || 0) > 0);
       }
 
+      function isRoundComplete() {
+        return state.players.length > 0 && state.players.every((player) => {
+          return player.scores.length === state.holes
+            && player.scores.every(score => score > 0);
+        });
+      }
+
       function showToast(message) {
         toastEl.textContent = message;
         toastEl.classList.add('show');
@@ -852,6 +963,47 @@
             <span class="standing-total">${p.total}</span>
           </div>
         `).join('');
+      }
+
+      function renderWinner() {
+        const complete = isRoundComplete();
+        winnerCard.hidden = !complete;
+        standingsTitle.textContent = complete ? 'Slutresultat' : 'Ställning';
+
+        if (!complete) {
+          winnerCard.classList.remove('celebrate');
+          wasRoundComplete = false;
+          return;
+        }
+
+        const bestScore = Math.min(...state.players.map(total));
+        const winners = state.players.filter(player => total(player) === bestScore);
+        const winnerNames = winners.map(player => player.name);
+
+        if (winners.length === 1) {
+          winnerTitle.textContent = `${winnerNames[0]} vann!`;
+          winnerSummary.textContent = `${bestScore} kast totalt`;
+        } else {
+          winnerTitle.textContent = 'Delad seger!';
+          winnerSummary.textContent = `${winnerNames.join(' och ')} vann med ${bestScore} kast`;
+        }
+
+        const justCompleted = !wasRoundComplete;
+        wasRoundComplete = true;
+
+        if (justCompleted) {
+          winnerCard.classList.remove('celebrate');
+          void winnerCard.offsetWidth;
+          winnerCard.classList.add('celebrate');
+
+          requestAnimationFrame(() => {
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            winnerCard.scrollIntoView({
+              behavior: reduceMotion ? 'auto' : 'smooth',
+              block: 'start'
+            });
+          });
+        }
       }
 
       function escapeHtml(str) {
@@ -971,6 +1123,7 @@
       function render() {
         normalizeState();
         renderPlayCard();
+        renderWinner();
         renderStandings();
         renderTable();
         saveState();
@@ -1119,6 +1272,13 @@
 
       setupDetails.addEventListener('toggle', () => {
         container.classList.toggle('settings-open', setupDetails.open);
+      });
+
+      document.getElementById('showFinalResults').addEventListener('click', () => {
+        document.getElementById('standingsCard').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
       });
 
       render();
