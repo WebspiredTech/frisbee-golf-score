@@ -3,75 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f2f4f7" id="themeColor" />
+    <meta name="theme-color" content="#e7efe9" id="themeColor" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" id="statusBarStyle" />
     <title>Frisbeegolf Scoreboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
     <style>
       :root {
-        /* Soläge (default) – hög kontrast för utomhus */
-        --bg: #f2f4f7;
+        /* Soläge – hög kontrast + mer polish */
+        --bg: #e7efe9;
+        --bg-accent: #d5e8db;
         --card: #ffffff;
-        --card-2: #ffffff;
-        --muted: #334155;
-        --text: #0b1220;
-        --accent: #0a7a45;
-        --accent-soft: #e8f7ef;
-        --danger: #b42318;
-        --danger-bg: #fff1f0;
-        --border: #0b1220;
+        --muted: #2f4a3a;
+        --text: #0d1f16;
+        --accent: #0b6b3c;
+        --accent-soft: #dff3e8;
+        --danger: #a61b1b;
+        --danger-bg: #ffe8e6;
+        --border: #173528;
+        --border-soft: #9bb5a6;
         --input: #ffffff;
-        --row: #f8fafc;
-        --row-border: #0b1220;
-        --primary-bg: #0a7a45;
-        --primary-border: #065f36;
+        --row: #f4faf6;
+        --row-border: #173528;
+        --primary-bg: #0b6b3c;
+        --primary-border: #084e2c;
         --primary-text: #ffffff;
         --ghost-bg: #ffffff;
-        --pill-bg: #ffffff;
-        --toast-bg: #0a7a45;
-        --toast-border: #065f36;
+        --pill-bg: #f4faf6;
+        --toast-bg: #0b6b3c;
+        --toast-border: #084e2c;
         --toast-text: #ffffff;
-        --shadow: 0 2px 0 rgba(11, 18, 32, 0.12);
-        --play-border: #0a7a45;
-        --howto-bg: #e8f7ef;
-        --howto-border: #0a7a45;
-        --best-bg: #e8f7ef;
-        --best-border: #0a7a45;
+        --shadow: 0 8px 0 rgba(13, 31, 22, 0.08);
+        --play-border: #0b6b3c;
+        --howto-bg: #dff3e8;
+        --howto-border: #0b6b3c;
+        --best-bg: #dff3e8;
+        --best-border: #0b6b3c;
         --table-sticky: #ffffff;
+        --score-well: #ffffff;
+        --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
+        --font-body: "Outfit", "Segoe UI", system-ui, sans-serif;
         --safe-bottom: env(safe-area-inset-bottom, 0px);
         --safe-top: env(safe-area-inset-top, 0px);
         color-scheme: light;
       }
 
       html[data-theme="dark"] {
-        --bg: #0b1020;
-        --card: #131a2e;
-        --card-2: #1a2240;
-        --muted: #c2cae0;
-        --text: #f3f6ff;
-        --accent: #56d6a2;
-        --accent-soft: rgba(86, 214, 162, 0.14);
-        --danger: #ff8a8a;
-        --danger-bg: #3f1f27;
-        --border: #8ea0d6;
-        --input: #0f1530;
-        --row: #0f1530;
-        --row-border: #8ea0d6;
-        --primary-bg: #173f34;
-        --primary-border: #56d6a2;
-        --primary-text: #f3f6ff;
+        --bg: #0c1411;
+        --bg-accent: #15241c;
+        --card: #15231c;
+        --muted: #b7cfc1;
+        --text: #f2fbf5;
+        --accent: #4fd18f;
+        --accent-soft: rgba(79, 209, 143, 0.14);
+        --danger: #ff8d85;
+        --danger-bg: #3a1d1c;
+        --border: #4fd18f;
+        --border-soft: #2d4639;
+        --input: #0f1a15;
+        --row: #0f1a15;
+        --row-border: #3d5a4a;
+        --primary-bg: #178a4f;
+        --primary-border: #4fd18f;
+        --primary-text: #04140c;
         --ghost-bg: transparent;
-        --pill-bg: #101c40;
-        --toast-bg: #173f34;
-        --toast-border: #56d6a2;
-        --toast-text: #f3f6ff;
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        --play-border: #56d6a2;
-        --howto-bg: rgba(86, 214, 162, 0.12);
-        --howto-border: #56d6a2;
-        --best-bg: rgba(86, 214, 162, 0.16);
-        --best-border: #56d6a2;
-        --table-sticky: #131a2e;
+        --pill-bg: #0f1a15;
+        --toast-bg: #178a4f;
+        --toast-border: #4fd18f;
+        --toast-text: #04140c;
+        --shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+        --play-border: #4fd18f;
+        --howto-bg: rgba(79, 209, 143, 0.12);
+        --howto-border: #4fd18f;
+        --best-bg: rgba(79, 209, 143, 0.16);
+        --best-border: #4fd18f;
+        --table-sticky: #15231c;
+        --score-well: #0c1411;
         color-scheme: dark;
       }
 
@@ -79,12 +88,15 @@
       html { -webkit-text-size-adjust: 100%; }
       body {
         margin: 0;
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-        background: var(--bg);
+        font-family: var(--font-body);
+        background:
+          radial-gradient(900px 420px at 0% -10%, var(--bg-accent), transparent 60%),
+          radial-gradient(700px 380px at 100% 0%, rgba(11, 107, 60, 0.12), transparent 55%),
+          var(--bg);
         color: var(--text);
         min-height: 100dvh;
         padding-bottom: calc(12px + var(--safe-bottom));
-        font-weight: 500;
+        font-weight: 600;
       }
       .container {
         max-width: 720px;
@@ -96,14 +108,16 @@
       .container.playing #setupCard { order: 3; }
       .container.playing #playCard { order: 1; }
       .container.playing #standingsCard { order: 2; }
+
       .card {
         background: var(--card);
         border: 2px solid var(--border);
-        border-radius: 14px;
+        border-radius: 18px;
         padding: 14px;
         margin-bottom: 12px;
         box-shadow: var(--shadow);
       }
+
       .topbar {
         display: flex;
         justify-content: space-between;
@@ -116,45 +130,63 @@
         flex: 1;
         min-width: 0;
       }
-      #themeToggle {
+      #themeToggle,
+      #themeTogglePlay {
         flex: 0 0 auto;
-        min-height: 44px;
+        min-height: 40px;
         padding: 8px 12px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         border-width: 2px;
         white-space: nowrap;
+        border-radius: 999px;
+        letter-spacing: 0.01em;
       }
+
       h1 {
         margin: 0 0 6px;
-        font-size: clamp(1.35rem, 5vw, 1.75rem);
-        letter-spacing: -0.02em;
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 5.2vw, 1.85rem);
+        letter-spacing: -0.03em;
         font-weight: 800;
+        line-height: 1.1;
       }
-      .muted { color: var(--muted); margin: 0 0 12px; line-height: 1.4; font-weight: 600; }
+      .brand-mark {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--accent);
+        margin-right: 8px;
+        vertical-align: 2px;
+      }
+      .muted { color: var(--muted); margin: 0 0 12px; line-height: 1.45; font-weight: 600; }
       .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
       label {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-size: 14px;
+        font-size: 13px;
         color: var(--muted);
         font-weight: 700;
         flex: 1 1 140px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
       }
       input, button, select {
         border: 2px solid var(--border);
         background: var(--input);
         color: var(--text);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 12px 14px;
         font-size: 16px;
         min-height: 48px;
         font-weight: 700;
+        font-family: inherit;
       }
       input, select { width: 100%; min-width: 0; }
-      input::placeholder { color: #64748b; opacity: 1; }
-      html[data-theme="dark"] input::placeholder { color: #93a0c2; }
+      input::placeholder { color: #5f7a6b; opacity: 1; }
+      html[data-theme="dark"] input::placeholder { color: #8eab9a; }
       button {
         cursor: pointer;
         touch-action: manipulation;
@@ -174,7 +206,7 @@
         color: var(--danger);
       }
       button:disabled {
-        opacity: 0.45;
+        opacity: 0.4;
         cursor: not-allowed;
         transform: none;
       }
@@ -182,15 +214,14 @@
       .setup-grid { display: grid; gap: 10px; }
       .setup-actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 8px;
       }
-      .setup-actions .danger { grid-column: 1 / -1; }
 
       .howto {
         margin: 0;
-        padding: 10px 12px;
-        border-radius: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
         background: var(--howto-bg);
         border: 2px solid var(--howto-border);
         color: var(--muted);
@@ -211,40 +242,43 @@
 
       .hole-nav {
         display: grid;
-        grid-template-columns: 56px 1fr 56px;
+        grid-template-columns: 52px 1fr 52px;
         gap: 8px;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       .hole-nav button {
         padding: 0;
         font-size: 22px;
         display: grid;
         place-items: center;
+        border-radius: 14px;
       }
       .hole-pill {
         text-align: center;
-        font-weight: 900;
+        font-family: var(--font-display);
+        font-weight: 800;
         font-size: 18px;
         padding: 12px 10px;
-        border-radius: 12px;
+        border-radius: 14px;
         background: var(--pill-bg);
         border: 2px solid var(--border);
+        letter-spacing: -0.02em;
       }
       .hole-progress {
         display: flex;
         gap: 6px;
         margin: 0 0 14px;
         overflow-x: auto;
-        padding-bottom: 2px;
+        padding: 2px 1px 4px;
         scrollbar-width: none;
       }
       .hole-progress::-webkit-scrollbar { display: none; }
       .dot {
         flex: 0 0 auto;
-        width: 40px;
-        height: 40px;
-        border-radius: 999px;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
         border: 2px solid var(--border);
         background: var(--card);
         color: var(--text);
@@ -254,11 +288,13 @@
         place-items: center;
         padding: 0;
         min-height: 0;
+        font-family: var(--font-display);
       }
       .dot.current {
         background: var(--primary-bg);
         border-color: var(--primary-border);
         color: var(--primary-text);
+        transform: translateY(-1px);
       }
       .dot.scored {
         background: var(--accent-soft);
@@ -268,23 +304,26 @@
 
       .player-list {
         display: grid;
-        gap: 8px;
+        gap: 10px;
         margin-bottom: 12px;
       }
       .player-row {
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
-        padding: 10px;
-        border-radius: 14px;
+        padding: 12px;
+        border-radius: 16px;
         background: var(--row);
         border: 2px solid var(--row-border);
+        box-shadow: inset 4px 0 0 var(--accent);
       }
       .player-meta { min-width: 0; }
       .player-name {
+        font-family: var(--font-display);
         font-weight: 800;
-        font-size: 17px;
+        font-size: 18px;
+        letter-spacing: -0.02em;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -292,32 +331,43 @@
       .player-sub {
         font-size: 14px;
         color: var(--muted);
-        margin-top: 2px;
+        margin-top: 3px;
         font-weight: 700;
       }
       .score-controls {
         display: inline-flex;
         gap: 8px;
         align-items: center;
+        background: var(--score-well);
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        padding: 4px;
       }
       .score-btn {
-        width: 52px;
-        height: 52px;
-        min-height: 52px;
+        width: 48px;
+        height: 48px;
+        min-height: 48px;
         padding: 0;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 900;
         display: grid;
         place-items: center;
         border-radius: 12px;
+        border-width: 2px;
+      }
+      .score-btn:not(.primary) {
+        background: transparent;
+        border-color: transparent;
       }
       .score-val {
-        min-width: 40px;
+        min-width: 42px;
         text-align: center;
-        font-size: 26px;
-        font-weight: 900;
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 800;
         font-variant-numeric: tabular-nums;
         color: var(--text);
+        letter-spacing: -0.03em;
       }
 
       .bulk-row {
@@ -326,11 +376,16 @@
         gap: 8px;
       }
       .bulk-row .hint {
-        font-size: 14px;
+        font-size: 13px;
         color: var(--muted);
         margin: 0;
         text-align: center;
         font-weight: 700;
+      }
+      #incAll {
+        border-radius: 16px;
+        font-size: 16px;
+        letter-spacing: -0.01em;
       }
 
       .section-title {
@@ -338,52 +393,69 @@
         justify-content: space-between;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
       }
       .section-title h2 {
         margin: 0;
-        font-size: 14px;
+        font-family: var(--font-display);
+        font-size: 12px;
         font-weight: 800;
         color: var(--muted);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.08em;
       }
 
-      .standings { display: grid; gap: 6px; }
+      .standings { display: grid; gap: 8px; }
       .standing-row {
         display: grid;
-        grid-template-columns: 28px 1fr auto;
+        grid-template-columns: 34px 1fr auto;
         gap: 8px;
         align-items: center;
-        padding: 10px;
-        border-radius: 10px;
+        padding: 11px 12px;
+        border-radius: 14px;
         background: var(--row);
-        border: 2px solid var(--row-border);
+        border: 2px solid var(--border-soft);
       }
       .standing-row.best {
         background: var(--best-bg);
         border-color: var(--best-border);
       }
       .rank {
-        color: var(--muted);
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        background: var(--card);
+        border: 2px solid var(--border);
+        color: var(--text);
         font-weight: 800;
-        font-size: 14px;
+        font-size: 13px;
+        font-family: var(--font-display);
+      }
+      .standing-row.best .rank {
+        background: var(--primary-bg);
+        border-color: var(--primary-border);
+        color: var(--primary-text);
       }
       .standing-name {
         font-weight: 800;
+        font-size: 16px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .standing-total {
-        font-weight: 900;
-        font-size: 18px;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 20px;
         font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
       }
 
       details.table-wrap,
       #setupDetails {
-        border-top: 2px solid var(--border);
+        border-top: 2px solid var(--border-soft);
         margin-top: 12px;
         padding-top: 10px;
       }
@@ -423,7 +495,7 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         margin-top: 8px;
-        border-radius: 12px;
+        border-radius: 14px;
         border: 2px solid var(--border);
       }
       table {
@@ -432,7 +504,7 @@
         min-width: 480px;
       }
       th, td {
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-soft);
         text-align: center;
         padding: 10px 6px;
         font-size: 14px;
@@ -481,7 +553,7 @@
         background: var(--toast-bg);
         border: 2px solid var(--toast-border);
         color: var(--toast-text);
-        padding: 10px 14px;
+        padding: 11px 16px;
         border-radius: 999px;
         font-size: 14px;
         font-weight: 800;
@@ -491,6 +563,7 @@
         pointer-events: none;
         max-width: calc(100% - 32px);
         text-align: center;
+        box-shadow: var(--shadow);
       }
       .toast.show {
         transform: translateX(-50%) translateY(0);
@@ -509,10 +582,10 @@
     <div class="container">
       <div class="card" id="setupCard">
         <div class="topbar">
-          <h1>Frisbeegolf Scoreboard</h1>
+          <h1><span class="brand-mark" aria-hidden="true"></span>Frisbeegolf</h1>
           <button id="themeToggle" type="button" class="ghost" aria-pressed="true" title="Byt mellan soläge och kvällsläge">Soläge</button>
         </div>
-        <p class="muted" id="introText">Enkel poängräkning för runda på banan. Allt sparas automatiskt i telefonen.</p>
+        <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
 
         <p class="howto" id="howto">
           <strong>Så funkar det:</strong> sätt antal hål → lägg till spelare → använd + / − per spelare på varje hål.
@@ -614,7 +687,7 @@
         }
         const themeColor = document.getElementById('themeColor');
         const statusBar = document.getElementById('statusBarStyle');
-        if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#f2f4f7' : '#0b1020');
+        if (themeColor) themeColor.setAttribute('content', mode === 'sun' ? '#e7efe9' : '#0c1411');
         if (statusBar) statusBar.setAttribute('content', mode === 'sun' ? 'default' : 'black-translucent');
         try { localStorage.setItem(THEME_KEY, mode); } catch {}
       }
@@ -752,7 +825,7 @@
 
         standings.innerHTML = ranked.map((p, i) => `
           <div class="standing-row ${p.total === best ? 'best' : ''}">
-            <span class="rank">${i + 1}.</span>
+            <span class="rank">${i + 1}</span>
             <span class="standing-name ${p.total === best ? 'leader' : ''}">${escapeHtml(p.name)}</span>
             <span class="standing-total">${p.total}</span>
           </div>
