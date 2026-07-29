@@ -1060,11 +1060,7 @@
         <div class="topbar">
           <h1><span class="brand-mark" aria-hidden="true"></span><span id="setupTitleText">Frisbeegolf</span></h1>
         </div>
-        <p class="muted" id="introText">Poängräkning för rundan – tydlig i solljus, sparas i telefonen.</p>
-
-        <p class="howto" id="howto">
-          <strong>Snabbstart:</strong> lägg till spelarna och börja. 9 hål och dagens datum är redan valt.
-        </p>
+        <p class="muted" id="introText">Lägg till spelarna och börja direkt.</p>
 
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
@@ -1196,7 +1192,7 @@
           <h2>Historik</h2>
           <span id="historyCount" class="history-count">0</span>
         </div>
-        <div class="history-toolbar">
+        <div class="history-toolbar" id="historyToolbar">
           <label>
             Visa bana
             <select id="courseFilter">
@@ -1272,7 +1268,6 @@
       const nextHoleBtn = document.getElementById('nextHole');
       const incAllBtn = document.getElementById('incAll');
       const toastEl = document.getElementById('toast');
-      const howto = document.getElementById('howto');
       const setupCard = document.getElementById('setupCard');
       const setupDetails = document.getElementById('setupDetails');
       const setupSummary = document.getElementById('setupSummary');
@@ -1283,6 +1278,7 @@
       const standingsTitle = document.getElementById('standingsTitle');
       const activeGameName = document.getElementById('activeGameName');
       const historyCount = document.getElementById('historyCount');
+      const historyToolbar = document.getElementById('historyToolbar');
       const courseFilter = document.getElementById('courseFilter');
       const courseStats = document.getElementById('courseStats');
       const progressSummary = document.getElementById('progressSummary');
@@ -1769,6 +1765,16 @@
         const records = [...gameHistory]
           .sort((a, b) => getPlayedTime(b) - getPlayedTime(a));
         historyCount.textContent = records.length;
+        historyToolbar.hidden = records.length === 0;
+
+        if (records.length === 0) {
+          courseStats.innerHTML = '';
+          progressSummary.innerHTML = '';
+          gameHistoryEl.innerHTML = '<p class="empty">Dina spel visas här när du lagt till spelare.</p>';
+          document.getElementById('courseSuggestions').innerHTML = '';
+          document.getElementById('locationSuggestions').innerHTML = '';
+          return;
+        }
 
         const courseMap = new Map();
         const locations = new Set();
@@ -1912,7 +1918,6 @@
         const isPlaying = hasPlayers && state.gameStarted;
         playCard.hidden = !isPlaying;
         standingsCard.hidden = !isPlaying;
-        howto.hidden = isPlaying;
         activeGameName.textContent = state.gameName;
         if (document.activeElement !== gameNameInput) {
           gameNameInput.value = state.gameName;
