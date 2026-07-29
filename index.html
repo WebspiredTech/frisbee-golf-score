@@ -109,6 +109,7 @@
       .container.playing #playCard { order: 1; }
       .container.playing #standingsCard { order: 2; }
       .container.playing #winnerCard { order: 0; }
+      .container.playing #historyCard { order: 4; }
 
       .card {
         background: var(--card);
@@ -236,6 +237,16 @@
         min-height: 44px;
         padding: 8px 10px;
         font-size: 14px;
+      }
+      .game-name-chip {
+        max-width: 65%;
+        overflow: hidden;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 800;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .howto {
@@ -561,6 +572,134 @@
         letter-spacing: -0.02em;
       }
 
+      .history-count {
+        display: inline-grid;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 8px;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .trend-card {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid var(--best-border);
+        border-radius: 14px;
+        background: var(--best-bg);
+      }
+      .trend-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--primary-bg);
+        color: var(--primary-text);
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .trend-title {
+        margin: 0 0 3px;
+        font-size: 14px;
+        font-weight: 900;
+      }
+      .trend-lines {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+      .history-list {
+        display: grid;
+        gap: 9px;
+      }
+      .history-item {
+        padding: 12px;
+        border: 1px solid var(--border-soft);
+        border-radius: 15px;
+        background: var(--row);
+      }
+      .history-item.current {
+        border-color: var(--accent);
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
+      .history-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .history-name {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1.2;
+      }
+      .history-meta {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .status-pill {
+        flex: 0 0 auto;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+      .status-pill.in-progress {
+        background: var(--row);
+        border: 1px solid var(--border-soft);
+        color: var(--muted);
+      }
+      .history-result {
+        margin: 9px 0 7px;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .history-players {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .history-player {
+        padding: 5px 8px;
+        border: 1px solid var(--border-soft);
+        border-radius: 9px;
+        background: var(--card);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .history-player strong {
+        color: var(--text);
+        font-weight: 900;
+      }
+      .history-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .history-actions button {
+        min-height: 38px;
+        padding: 7px 11px;
+        font-size: 13px;
+      }
+
       details.table-wrap,
       #setupDetails {
         border-top: 2px solid var(--border-soft);
@@ -702,6 +841,14 @@
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
           <div class="setup-grid" style="margin-top: 12px">
+            <div class="row">
+              <label>
+                Namn på spelet
+                <input id="gameName" placeholder="t.ex. Söndagsrundan" autocomplete="off" enterkeyhint="done" />
+              </label>
+              <button id="saveGameName" class="primary" style="flex: 0 0 auto">Spara namn</button>
+            </div>
+
             <div class="setting-row">
               <div class="setting-copy">
                 <span class="setting-label">Utseende</span>
@@ -730,6 +877,7 @@
             </div>
 
             <div class="setup-actions">
+              <button id="newGame" class="primary">Starta nytt spel</button>
               <button id="resetAll" class="danger">Radera hela spelet</button>
             </div>
           </div>
@@ -739,6 +887,7 @@
       <div id="playCard" class="card play-card" hidden>
         <div class="section-title" style="margin-bottom: 10px;">
           <h2>Poäng</h2>
+          <span id="activeGameName" class="game-name-chip"></span>
         </div>
         <div class="hole-nav">
           <button id="prevHole" class="ghost" aria-label="Föregående hål">←</button>
@@ -784,6 +933,17 @@
           <div class="footer">Lägre totalpoäng leder. Tryck på ett hål i tabellen för att hoppa dit.</div>
         </details>
       </div>
+
+      <section class="card" id="historyCard">
+        <div class="section-title">
+          <h2>Historik</h2>
+          <span id="historyCount" class="history-count">0</span>
+        </div>
+        <div id="progressSummary"></div>
+        <div id="gameHistory" class="history-list">
+          <p class="empty">Dina spel visas här.</p>
+        </div>
+      </section>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -791,6 +951,7 @@
     <script>
       const STORAGE_KEY = 'frisbee-scoreboard-v2';
       const THEME_KEY = 'frisbee-scoreboard-theme';
+      const HISTORY_KEY = 'frisbee-scoreboard-history-v1';
 
       function getSavedTheme() {
         try {
@@ -815,18 +976,17 @@
       applyTheme(getSavedTheme());
 
       const loaded = loadState();
-      const state = loaded || {
-        holes: 9,
-        players: [],
-        activePlayerId: null,
-        activeHole: 0
-      };
+      const state = loaded || createGameState();
+      let gameHistory = loadGameHistory();
 
       const holesInput = document.getElementById('holesInput');
       const applyHolesBtn = document.getElementById('applyHoles');
       const resetBtn = document.getElementById('resetAll');
       const playerNameInput = document.getElementById('playerName');
       const addPlayerBtn = document.getElementById('addPlayer');
+      const gameNameInput = document.getElementById('gameName');
+      const saveGameNameBtn = document.getElementById('saveGameName');
+      const newGameBtn = document.getElementById('newGame');
       const table = document.getElementById('scoreTable');
       const standings = document.getElementById('standings');
       const playCard = document.getElementById('playCard');
@@ -846,18 +1006,49 @@
       const winnerTitle = document.getElementById('winnerTitle');
       const winnerSummary = document.getElementById('winnerSummary');
       const standingsTitle = document.getElementById('standingsTitle');
+      const activeGameName = document.getElementById('activeGameName');
+      const historyCount = document.getElementById('historyCount');
+      const progressSummary = document.getElementById('progressSummary');
+      const gameHistoryEl = document.getElementById('gameHistory');
       const container = document.querySelector('.container');
 
       let toastTimer = null;
       let allowSetupCollapse = false;
       let wasRoundComplete = false;
 
-      holesInput.value = state.holes;
       normalizeState();
+      holesInput.value = state.holes;
+      gameNameInput.value = state.gameName;
       allowSetupCollapse = state.players.length > 0;
 
       function saveState() {
+        state.updatedAt = new Date().toISOString();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        syncCurrentGameToHistory();
+      }
+
+      function defaultGameName() {
+        const date = new Intl.DateTimeFormat('sv-SE', {
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(new Date()).replace('.', '');
+        return `Runda ${date}`;
+      }
+
+      function createGameState() {
+        const now = new Date().toISOString();
+        return {
+          gameId: crypto.randomUUID(),
+          gameName: defaultGameName(),
+          createdAt: now,
+          updatedAt: now,
+          holes: 9,
+          players: [],
+          activePlayerId: null,
+          activeHole: 0
+        };
       }
 
       function loadState() {
@@ -869,6 +1060,9 @@
           if (oldRaw) {
             const old = JSON.parse(oldRaw);
             return {
+              gameId: crypto.randomUUID(),
+              gameName: defaultGameName(),
+              createdAt: new Date().toISOString(),
               holes: old.holes || 9,
               players: old.players || [],
               activePlayerId: old.players?.[0]?.id || null,
@@ -882,7 +1076,29 @@
         }
       }
 
+      function loadGameHistory() {
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed)
+            ? parsed.filter(game => game && game.id && Array.isArray(game.players))
+            : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveGameHistory() {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(gameHistory));
+      }
+
       function normalizeState() {
+        if (!state.gameId) state.gameId = crypto.randomUUID();
+        if (!state.gameName || typeof state.gameName !== 'string') {
+          state.gameName = defaultGameName();
+        }
+        if (!state.createdAt) state.createdAt = new Date().toISOString();
+        if (!state.updatedAt) state.updatedAt = state.createdAt;
         if (!Number.isInteger(state.holes) || state.holes < 1) state.holes = 9;
         if (!Array.isArray(state.players)) state.players = [];
 
@@ -912,15 +1128,59 @@
         return player.scores.reduce((a, b) => a + b, 0);
       }
 
+      function gameIsComplete(game) {
+        return game.players.length > 0 && game.players.every((player) => {
+          return player.scores.length === game.holes
+            && player.scores.every(score => score > 0);
+        });
+      }
+
       function holeHasAnyScore(holeIndex) {
         return state.players.some(p => (p.scores[holeIndex] || 0) > 0);
       }
 
       function isRoundComplete() {
-        return state.players.length > 0 && state.players.every((player) => {
-          return player.scores.length === state.holes
-            && player.scores.every(score => score > 0);
-        });
+        return gameIsComplete(state);
+      }
+
+      function syncCurrentGameToHistory() {
+        const existingIndex = gameHistory.findIndex(game => game.id === state.gameId);
+
+        if (state.players.length === 0) {
+          if (existingIndex >= 0) {
+            gameHistory.splice(existingIndex, 1);
+            saveGameHistory();
+          }
+          return;
+        }
+
+        const now = state.updatedAt || new Date().toISOString();
+        const complete = isRoundComplete();
+        const existing = existingIndex >= 0 ? gameHistory[existingIndex] : null;
+        const snapshot = {
+          id: state.gameId,
+          name: state.gameName,
+          holes: state.holes,
+          players: state.players.map(player => ({
+            id: player.id,
+            name: player.name,
+            scores: [...player.scores]
+          })),
+          activePlayerId: state.activePlayerId,
+          activeHole: state.activeHole,
+          createdAt: state.createdAt,
+          updatedAt: now,
+          completedAt: complete ? (existing?.completedAt || now) : null,
+          complete
+        };
+
+        if (existingIndex >= 0) gameHistory[existingIndex] = snapshot;
+        else gameHistory.push(snapshot);
+
+        gameHistory = gameHistory
+          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+          .slice(0, 100);
+        saveGameHistory();
       }
 
       function showToast(message) {
@@ -1006,6 +1266,131 @@
         }
       }
 
+      function formatHistoryDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return new Intl.DateTimeFormat('sv-SE', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }).format(date).replace('.', '');
+      }
+
+      function getGameWinners(game) {
+        if (!game.complete || game.players.length === 0) return [];
+        const best = Math.min(...game.players.map(total));
+        return game.players.filter(player => total(player) === best);
+      }
+
+      function getPlayerTrends() {
+        const byPlayer = new Map();
+        const completedGames = gameHistory
+          .filter(game => game.complete)
+          .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+
+        for (const game of completedGames) {
+          for (const player of game.players) {
+            const key = player.name.toLocaleLowerCase('sv-SE');
+            if (!byPlayer.has(key)) byPlayer.set(key, []);
+            byPlayer.get(key).push({
+              name: player.name,
+              average: total(player) / game.holes
+            });
+          }
+        }
+
+        return [...byPlayer.values()]
+          .filter(results => results.length >= 2)
+          .map((results) => {
+            const latest = results.at(-1);
+            const previous = results.at(-2);
+            return {
+              name: latest.name,
+              difference: latest.average - previous.average
+            };
+          })
+          .sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+      }
+
+      function formatDifference(value) {
+        return Math.abs(value).toLocaleString('sv-SE', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        });
+      }
+
+      function renderHistory() {
+        const records = [...gameHistory]
+          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        historyCount.textContent = records.length;
+
+        const trends = getPlayerTrends();
+        if (trends.length > 0) {
+          const improved = trends.some(trend => trend.difference < -0.05);
+          const trendLines = trends.map((trend) => {
+            if (trend.difference < -0.05) {
+              return `<strong>${escapeHtml(trend.name)}</strong>: ${formatDifference(trend.difference)} färre kast/hål`;
+            }
+            if (trend.difference > 0.05) {
+              return `<strong>${escapeHtml(trend.name)}</strong>: ${formatDifference(trend.difference)} fler kast/hål`;
+            }
+            return `<strong>${escapeHtml(trend.name)}</strong>: oförändrat`;
+          }).join('<br>');
+
+          progressSummary.innerHTML = `
+            <div class="trend-card">
+              <div class="trend-icon">${improved ? '↘' : '→'}</div>
+              <div>
+                <p class="trend-title">Utveckling från förra rundan</p>
+                <p class="trend-lines">${trendLines}</p>
+              </div>
+            </div>
+          `;
+        } else {
+          progressSummary.innerHTML = '';
+        }
+
+        if (records.length === 0) {
+          gameHistoryEl.innerHTML = '<p class="empty">Dina spel visas här när du lagt till spelare.</p>';
+          return;
+        }
+
+        gameHistoryEl.innerHTML = records.map((game) => {
+          const isCurrent = game.id === state.gameId;
+          const winners = getGameWinners(game);
+          const winnerText = game.complete
+            ? (winners.length === 1
+                ? `${winners[0].name} vann`
+                : `Delad seger: ${winners.map(player => player.name).join(' och ')}`)
+            : `${game.players.reduce((sum, player) => {
+                return sum + player.scores.filter(score => score > 0).length;
+              }, 0)} av ${game.holes * game.players.length} resultat ifyllda`;
+
+          const playerScores = game.players.map((player) => {
+            return `<span class="history-player">${escapeHtml(player.name)} <strong>${total(player)}</strong></span>`;
+          }).join('');
+
+          return `
+            <article class="history-item ${isCurrent ? 'current' : ''}">
+              <div class="history-head">
+                <div>
+                  <h3 class="history-name">${escapeHtml(game.name)}</h3>
+                  <p class="history-meta">${formatHistoryDate(game.completedAt || game.updatedAt)} · ${game.holes} hål</p>
+                </div>
+                <span class="status-pill ${game.complete ? '' : 'in-progress'}">${game.complete ? 'Klar' : 'Pågår'}</span>
+              </div>
+              <p class="history-result">${escapeHtml(winnerText)}</p>
+              <div class="history-players">${playerScores}</div>
+              <div class="history-actions">
+                <button type="button" class="ghost" data-open-game="${game.id}" ${isCurrent ? 'disabled' : ''}>
+                  ${isCurrent ? 'Nuvarande spel' : 'Öppna spel'}
+                </button>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
       function escapeHtml(str) {
         return String(str)
           .replaceAll('&', '&amp;')
@@ -1023,10 +1408,19 @@
           });
       }
 
+      function formatGameName(value) {
+        const normalized = value.trim().replace(/\s+/g, ' ');
+        return normalized.replace(/^\p{L}/u, letter => letter.toLocaleUpperCase('sv-SE'));
+      }
+
       function renderPlayCard() {
         const hasPlayers = state.players.length > 0;
         playCard.hidden = !hasPlayers;
         howto.hidden = hasPlayers;
+        activeGameName.textContent = state.gameName;
+        if (document.activeElement !== gameNameInput) {
+          gameNameInput.value = state.gameName;
+        }
         setupCard.classList.toggle('compact', hasPlayers);
         container.classList.toggle('playing', hasPlayers);
         setupTitleText.textContent = hasPlayers ? 'Inställningar' : 'Frisbeegolf';
@@ -1127,6 +1521,7 @@
         renderStandings();
         renderTable();
         saveState();
+        renderHistory();
       }
 
       applyHolesBtn.addEventListener('click', () => {
@@ -1166,14 +1561,50 @@
         if (e.key === 'Enter') addPlayerBtn.click();
       });
 
-      resetBtn.addEventListener('click', () => {
-        if (!confirm('Radera hela spelet? Alla namn, spelare och poäng försvinner.')) return;
-        state.holes = 9;
-        state.players = [];
-        state.activePlayerId = null;
-        state.activeHole = 0;
+      function saveGameName() {
+        const name = formatGameName(gameNameInput.value);
+        if (!name) {
+          gameNameInput.focus();
+          return;
+        }
+        state.gameName = name;
+        gameNameInput.value = name;
+        showToast('Spelnamnet sparat');
+        render();
+      }
+
+      saveGameNameBtn.addEventListener('click', saveGameName);
+      gameNameInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') saveGameName();
+      });
+
+      function replaceCurrentGame(nextGame) {
+        for (const key of Object.keys(state)) delete state[key];
+        Object.assign(state, nextGame);
         holesInput.value = state.holes;
-        saveState();
+        gameNameInput.value = state.gameName;
+        allowSetupCollapse = false;
+        wasRoundComplete = false;
+        setupDetails.open = true;
+      }
+
+      newGameBtn.addEventListener('click', () => {
+        if (state.players.length > 0) {
+          const proceed = confirm(`Starta ett nytt spel? ”${state.gameName}” sparas i historiken.`);
+          if (!proceed) return;
+          saveState();
+        }
+
+        replaceCurrentGame(createGameState());
+        showToast('Nytt spel startat');
+        render();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('Radera det här spelet? Alla namn, spelare och poäng försvinner. Tidigare historik behålls.')) return;
+        gameHistory = gameHistory.filter(game => game.id !== state.gameId);
+        saveGameHistory();
+        replaceCurrentGame(createGameState());
         showToast('Spelet raderat');
         render();
       });
@@ -1279,6 +1710,34 @@
           behavior: 'smooth',
           block: 'start'
         });
+      });
+
+      gameHistoryEl.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-open-game]');
+        if (!button || button.disabled) return;
+        const game = gameHistory.find(item => item.id === button.dataset.openGame);
+        if (!game) return;
+
+        if (state.players.length > 0) saveState();
+
+        replaceCurrentGame({
+          gameId: game.id,
+          gameName: game.name,
+          createdAt: game.createdAt,
+          updatedAt: game.updatedAt,
+          holes: game.holes,
+          players: game.players.map(player => ({
+            id: player.id || crypto.randomUUID(),
+            name: player.name,
+            scores: [...player.scores]
+          })),
+          activePlayerId: game.activePlayerId,
+          activeHole: game.activeHole || 0
+        });
+        allowSetupCollapse = true;
+        showToast(`${game.name} öppnat`);
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
       render();
