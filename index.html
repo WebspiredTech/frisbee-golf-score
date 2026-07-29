@@ -637,7 +637,7 @@
             <div class="row">
               <label>
                 Spelarnamn
-                <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" enterkeyhint="done" />
+                <input id="playerName" placeholder="t.ex. Alex" autocomplete="off" autocapitalize="words" enterkeyhint="done" />
               </label>
               <button id="addPlayer" class="primary" style="flex: 0 0 auto">Lägg till</button>
             </div>
@@ -862,6 +862,15 @@
           .replaceAll('"', '&quot;');
       }
 
+      function formatPlayerName(value) {
+        return value
+          .trim()
+          .replace(/\s+/g, ' ')
+          .replace(/(^|[\s-])(\p{L})/gu, (_, separator, letter) => {
+            return separator + letter.toLocaleUpperCase('sv-SE');
+          });
+      }
+
       function renderPlayCard() {
         const hasPlayers = state.players.length > 0;
         playCard.hidden = !hasPlayers;
@@ -980,7 +989,7 @@
       });
 
       addPlayerBtn.addEventListener('click', () => {
-        const name = playerNameInput.value.trim();
+        const name = formatPlayerName(playerNameInput.value);
         if (!name) {
           playerNameInput.focus();
           return;
