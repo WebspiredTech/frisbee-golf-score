@@ -1277,7 +1277,7 @@
             <rect x="6" y="4" width="4" height="16" rx="1"></rect>
             <rect x="14" y="4" width="4" height="16" rx="1"></rect>
           </svg>
-          Pausa spelet
+          Spara och avsluta
         </button>
       </div>
 
@@ -2431,7 +2431,7 @@
         state.gameStarted = false;
         allowSetupCollapse = false;
         render();
-        showToast('Spelet är pausat och sparat');
+        showToast('Spelet är sparat');
         requestAnimationFrame(() => {
           setupCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
