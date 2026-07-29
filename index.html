@@ -201,6 +201,43 @@
         cursor: not-allowed;
         transform: none;
       }
+      #addPlayer::before {
+        content: "+";
+        display: inline-block;
+        margin-right: 6px;
+        font-size: 20px;
+        line-height: 0;
+        vertical-align: -1px;
+      }
+      #startRound::before {
+        content: "▶";
+        display: inline-block;
+        margin-right: 8px;
+        font-size: 12px;
+        vertical-align: 1px;
+      }
+      #saveGameName::before,
+      #saveGameDetails::before {
+        content: "✓";
+        margin-right: 6px;
+      }
+      #applyHoles::before {
+        content: "↻";
+        margin-right: 6px;
+      }
+      #newGame::before {
+        content: "+";
+        margin-right: 6px;
+        font-size: 18px;
+      }
+      #resetAll::before {
+        content: "×";
+        margin-right: 6px;
+        font-size: 18px;
+      }
+      .history-actions button:not(:disabled)::after {
+        content: " →";
+      }
 
       .setup-grid { display: grid; gap: 10px; }
       .quick-start {
