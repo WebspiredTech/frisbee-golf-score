@@ -202,6 +202,16 @@
       }
 
       .setup-grid { display: grid; gap: 10px; }
+      .game-details {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+        padding: 12px;
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        background: var(--row);
+      }
+      .game-details button { width: 100%; }
       .setup-actions {
         display: grid;
         grid-template-columns: 1fr;
@@ -579,6 +589,149 @@
         font-size: 13px;
         font-weight: 900;
       }
+      .history-toolbar {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .history-toolbar label {
+        flex: none;
+      }
+      .course-stats {
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid var(--border-soft);
+        border-radius: 15px;
+        background: var(--row);
+      }
+      .course-stats-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .course-stats-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 900;
+      }
+      .course-stats-location {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      #statsPlayer {
+        width: 135px;
+        min-height: 42px;
+        padding: 7px 9px;
+        font-size: 14px;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-bottom: 13px;
+      }
+      .metric {
+        padding: 9px 7px;
+        border: 1px solid var(--border-soft);
+        border-radius: 11px;
+        background: var(--card);
+        text-align: center;
+      }
+      .metric-value {
+        display: block;
+        color: var(--text);
+        font-size: 17px;
+        font-weight: 900;
+      }
+      .metric-label {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .chart-title {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .chart-legend {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .legend-swatch {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 4px;
+        border-radius: 3px;
+        background: var(--accent);
+      }
+      .legend-swatch.average { background: #98a2b3; }
+      .hole-chart-scroll {
+        overflow-x: auto;
+        padding: 4px 1px 2px;
+        scrollbar-width: thin;
+      }
+      .hole-chart {
+        display: grid;
+        grid-auto-columns: 56px;
+        grid-auto-flow: column;
+        gap: 5px;
+        min-width: max-content;
+      }
+      .hole-column {
+        text-align: center;
+      }
+      .bar-area {
+        height: 112px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px;
+        border-bottom: 2px solid var(--border-soft);
+      }
+      .hole-bar {
+        width: 17px;
+        min-height: 4px;
+        border-radius: 5px 5px 2px 2px;
+        background: var(--accent);
+      }
+      .hole-bar.average { background: #98a2b3; }
+      .hole-label {
+        display: block;
+        margin-top: 5px;
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .hole-values {
+        display: block;
+        margin-top: 1px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .chart-empty {
+        margin: 8px 0 0;
+        padding: 12px;
+        border-radius: 11px;
+        background: var(--card);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
       .trend-card {
         display: grid;
         grid-template-columns: 42px 1fr;
@@ -844,6 +997,24 @@
               <button id="saveGameName" class="primary" style="flex: 0 0 auto">Spara namn</button>
             </div>
 
+            <div class="game-details">
+              <label>
+                Bana
+                <input id="courseName" list="courseSuggestions" placeholder="t.ex. Järva Discgolfpark" autocomplete="off" />
+              </label>
+              <label>
+                Plats
+                <input id="gameLocation" list="locationSuggestions" placeholder="t.ex. Stockholm" autocomplete="off" />
+              </label>
+              <label>
+                Datum
+                <input id="playedAt" type="date" />
+              </label>
+              <button id="saveGameDetails" type="button" class="ghost">Spara baninfo</button>
+              <datalist id="courseSuggestions"></datalist>
+              <datalist id="locationSuggestions"></datalist>
+            </div>
+
             <div class="setting-row">
               <div class="setting-copy">
                 <span class="setting-label">Utseende</span>
@@ -934,6 +1105,15 @@
           <h2>Historik</h2>
           <span id="historyCount" class="history-count">0</span>
         </div>
+        <div class="history-toolbar">
+          <label>
+            Visa bana
+            <select id="courseFilter">
+              <option value="all">Alla banor</option>
+            </select>
+          </label>
+        </div>
+        <div id="courseStats"></div>
         <div id="progressSummary"></div>
         <div id="gameHistory" class="history-list">
           <p class="empty">Dina spel visas här.</p>
@@ -973,6 +1153,8 @@
       const loaded = loadState();
       const state = loaded || createGameState();
       let gameHistory = loadGameHistory();
+      let selectedCourseKey = 'all';
+      let selectedStatsPlayer = '';
 
       const holesInput = document.getElementById('holesInput');
       const applyHolesBtn = document.getElementById('applyHoles');
@@ -981,6 +1163,10 @@
       const addPlayerBtn = document.getElementById('addPlayer');
       const gameNameInput = document.getElementById('gameName');
       const saveGameNameBtn = document.getElementById('saveGameName');
+      const courseNameInput = document.getElementById('courseName');
+      const gameLocationInput = document.getElementById('gameLocation');
+      const playedAtInput = document.getElementById('playedAt');
+      const saveGameDetailsBtn = document.getElementById('saveGameDetails');
       const newGameBtn = document.getElementById('newGame');
       const table = document.getElementById('scoreTable');
       const standings = document.getElementById('standings');
@@ -1003,6 +1189,8 @@
       const standingsTitle = document.getElementById('standingsTitle');
       const activeGameName = document.getElementById('activeGameName');
       const historyCount = document.getElementById('historyCount');
+      const courseFilter = document.getElementById('courseFilter');
+      const courseStats = document.getElementById('courseStats');
       const progressSummary = document.getElementById('progressSummary');
       const gameHistoryEl = document.getElementById('gameHistory');
       const container = document.querySelector('.container');
@@ -1014,6 +1202,10 @@
       normalizeState();
       holesInput.value = state.holes;
       gameNameInput.value = state.gameName;
+      courseNameInput.value = state.courseName;
+      gameLocationInput.value = state.location;
+      playedAtInput.value = state.playedAt;
+      if (state.courseName) selectedCourseKey = getCourseKey(state.courseName);
       allowSetupCollapse = state.players.length > 0;
 
       function saveState() {
@@ -1037,6 +1229,9 @@
         return {
           gameId: crypto.randomUUID(),
           gameName: defaultGameName(),
+          courseName: '',
+          location: '',
+          playedAt: getTodayDate(),
           createdAt: now,
           updatedAt: now,
           holes: 9,
@@ -1044,6 +1239,12 @@
           activePlayerId: null,
           activeHole: 0
         };
+      }
+
+      function getTodayDate() {
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 10);
       }
 
       function loadState() {
@@ -1057,6 +1258,9 @@
             return {
               gameId: crypto.randomUUID(),
               gameName: defaultGameName(),
+              courseName: '',
+              location: '',
+              playedAt: getTodayDate(),
               createdAt: new Date().toISOString(),
               holes: old.holes || 9,
               players: old.players || [],
@@ -1091,6 +1295,11 @@
         if (!state.gameId) state.gameId = crypto.randomUUID();
         if (!state.gameName || typeof state.gameName !== 'string') {
           state.gameName = defaultGameName();
+        }
+        if (typeof state.courseName !== 'string') state.courseName = '';
+        if (typeof state.location !== 'string') state.location = '';
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(state.playedAt || '')) {
+          state.playedAt = state.createdAt?.slice(0, 10) || getTodayDate();
         }
         if (!state.createdAt) state.createdAt = new Date().toISOString();
         if (!state.updatedAt) state.updatedAt = state.createdAt;
@@ -1155,6 +1364,9 @@
         const snapshot = {
           id: state.gameId,
           name: state.gameName,
+          courseName: state.courseName,
+          location: state.location,
+          playedAt: state.playedAt,
           holes: state.holes,
           players: state.players.map(player => ({
             id: player.id,
@@ -1262,7 +1474,10 @@
       }
 
       function formatHistoryDate(value) {
-        const date = new Date(value);
+        const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value || '')
+          ? `${value}T12:00:00`
+          : value;
+        const date = new Date(normalized);
         if (Number.isNaN(date.getTime())) return '';
         return new Intl.DateTimeFormat('sv-SE', {
           day: 'numeric',
@@ -1271,17 +1486,30 @@
         }).format(date).replace('.', '');
       }
 
+      function getPlayedTime(game) {
+        const value = game.playedAt || game.completedAt || game.updatedAt;
+        const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value || '')
+          ? `${value}T12:00:00`
+          : value;
+        const time = new Date(normalized).getTime();
+        return Number.isFinite(time) ? time : 0;
+      }
+
       function getGameWinners(game) {
         if (!game.complete || game.players.length === 0) return [];
         const best = Math.min(...game.players.map(total));
         return game.players.filter(player => total(player) === best);
       }
 
-      function getPlayerTrends() {
+      function getCourseKey(value) {
+        return String(value || '').trim().toLocaleLowerCase('sv-SE');
+      }
+
+      function getPlayerTrends(games) {
         const byPlayer = new Map();
-        const completedGames = gameHistory
+        const completedGames = games
           .filter(game => game.complete)
-          .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+          .sort((a, b) => getPlayedTime(a) - getPlayedTime(b));
 
         for (const game of completedGames) {
           for (const player of game.players) {
@@ -1314,12 +1542,173 @@
         });
       }
 
+      function renderCourseStats(records) {
+        if (selectedCourseKey === 'all') {
+          courseStats.innerHTML = '<p class="chart-empty">Välj en bana för statistik och jämförelse hål för hål.</p>';
+          return;
+        }
+
+        const completed = records
+          .filter(game => game.complete)
+          .sort((a, b) => getPlayedTime(a) - getPlayedTime(b));
+        const latestGame = records[0];
+        if (!latestGame || completed.length === 0) {
+          courseStats.innerHTML = `
+            <div class="course-stats">
+              <h3 class="course-stats-title">${escapeHtml(latestGame?.courseName || 'Vald bana')}</h3>
+              <p class="chart-empty">Avsluta en runda på banan för att börja bygga statistik.</p>
+            </div>
+          `;
+          return;
+        }
+        const playerMap = new Map();
+
+        for (const game of completed) {
+          for (const player of game.players) {
+            const key = player.name.toLocaleLowerCase('sv-SE');
+            if (!playerMap.has(key)) playerMap.set(key, player.name);
+          }
+        }
+
+        const players = [...playerMap.entries()]
+          .sort((a, b) => a[1].localeCompare(b[1], 'sv'));
+        if (!players.some(([key]) => key === selectedStatsPlayer)) {
+          selectedStatsPlayer = players[0]?.[0] || '';
+        }
+
+        const playerResults = completed.map((game) => {
+          const player = game.players.find((item) => {
+            return item.name.toLocaleLowerCase('sv-SE') === selectedStatsPlayer;
+          });
+          return player ? { game, player, average: total(player) / game.holes } : null;
+        }).filter(Boolean);
+
+        const latest = playerResults.at(-1);
+        const previous = playerResults.slice(0, -1);
+        const previousLatest = previous.at(-1);
+        const bestAverage = playerResults.length
+          ? Math.min(...playerResults.map(result => result.average))
+          : null;
+        const difference = latest && previousLatest
+          ? latest.average - previousLatest.average
+          : null;
+        const formatAverage = value => value == null
+          ? '–'
+          : value.toLocaleString('sv-SE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const differenceText = difference == null
+          ? '–'
+          : `${difference > 0 ? '+' : difference < 0 ? '−' : ''}${formatDifference(difference)}`;
+
+        let chart = '<p class="chart-empty">Minst två avslutade rundor med samma spelare behövs för håljämförelse.</p>';
+        if (latest && previous.length > 0) {
+          const holeAverages = latest.player.scores.map((_, index) => {
+            const values = previous
+              .map(result => result.player.scores[index])
+              .filter(score => Number.isFinite(score) && score > 0);
+            return values.length
+              ? values.reduce((sum, score) => sum + score, 0) / values.length
+              : null;
+          });
+          const allValues = [...latest.player.scores, ...holeAverages.filter(Number.isFinite)];
+          const maxValue = Math.max(1, ...allValues);
+          const columns = latest.player.scores.map((score, index) => {
+            const average = holeAverages[index];
+            const latestHeight = Math.max(4, Math.round((score / maxValue) * 100));
+            const averageHeight = average == null
+              ? 0
+              : Math.max(4, Math.round((average / maxValue) * 100));
+            return `
+              <div class="hole-column">
+                <div class="bar-area">
+                  ${average == null ? '' : `<span class="hole-bar average" style="height:${averageHeight}%" title="Tidigare snitt ${formatAverage(average)}"></span>`}
+                  <span class="hole-bar" style="height:${latestHeight}%" title="Senaste ${score}"></span>
+                </div>
+                <span class="hole-label">H${index + 1}</span>
+                <span class="hole-values">${score} / ${average == null ? '–' : formatAverage(average)}</span>
+              </div>
+            `;
+          }).join('');
+
+          chart = `
+            <p class="chart-title">Senaste rundan jämfört med tidigare snitt</p>
+            <div class="chart-legend">
+              <span><i class="legend-swatch"></i>Senaste</span>
+              <span><i class="legend-swatch average"></i>Tidigare snitt</span>
+            </div>
+            <div class="hole-chart-scroll">
+              <div class="hole-chart" role="img" aria-label="Jämförelse av kast per hål. Lägre stapel är bättre.">${columns}</div>
+            </div>
+          `;
+        }
+
+        const courseName = latestGame?.courseName || 'Bana';
+        const location = latestGame?.location || '';
+        courseStats.innerHTML = `
+          <div class="course-stats">
+            <div class="course-stats-head">
+              <div>
+                <h3 class="course-stats-title">${escapeHtml(courseName)}</h3>
+                ${location ? `<p class="course-stats-location">${escapeHtml(location)}</p>` : ''}
+              </div>
+              <select id="statsPlayer" aria-label="Välj spelare för statistik">
+                ${players.map(([key, name]) => `<option value="${escapeHtml(key)}" ${key === selectedStatsPlayer ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('')}
+              </select>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="metric-value">${playerResults.length}</span><span class="metric-label">Rundor</span></div>
+              <div class="metric"><span class="metric-value">${formatAverage(bestAverage)}</span><span class="metric-label">Bästa / hål</span></div>
+              <div class="metric"><span class="metric-value">${differenceText}</span><span class="metric-label">Mot förra</span></div>
+            </div>
+            ${chart}
+          </div>
+        `;
+      }
+
       function renderHistory() {
         const records = [...gameHistory]
-          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          .sort((a, b) => getPlayedTime(b) - getPlayedTime(a));
         historyCount.textContent = records.length;
 
-        const trends = getPlayerTrends();
+        const courseMap = new Map();
+        const locations = new Set();
+        for (const game of records) {
+          const key = getCourseKey(game.courseName);
+          if (key && !courseMap.has(key)) {
+            courseMap.set(key, {
+              name: game.courseName,
+              location: game.location || ''
+            });
+          }
+          if (game.location) locations.add(game.location);
+        }
+
+        if (selectedCourseKey !== 'all' && !courseMap.has(selectedCourseKey)) {
+          selectedCourseKey = 'all';
+          selectedStatsPlayer = '';
+        }
+
+        courseFilter.innerHTML = `
+          <option value="all">Alla banor</option>
+          ${[...courseMap.entries()]
+            .sort((a, b) => a[1].name.localeCompare(b[1].name, 'sv'))
+            .map(([key, course]) => `<option value="${escapeHtml(key)}">${escapeHtml(course.name)}</option>`)
+            .join('')}
+        `;
+        courseFilter.value = selectedCourseKey;
+        document.getElementById('courseSuggestions').innerHTML = [...courseMap.values()]
+          .map(course => `<option value="${escapeHtml(course.name)}"></option>`)
+          .join('');
+        document.getElementById('locationSuggestions').innerHTML = [...locations]
+          .sort((a, b) => a.localeCompare(b, 'sv'))
+          .map(location => `<option value="${escapeHtml(location)}"></option>`)
+          .join('');
+
+        const filteredRecords = selectedCourseKey === 'all'
+          ? records
+          : records.filter(game => getCourseKey(game.courseName) === selectedCourseKey);
+        renderCourseStats(filteredRecords);
+
+        const trends = selectedCourseKey === 'all' ? [] : getPlayerTrends(filteredRecords);
         if (trends.length > 0) {
           const improved = trends.some(trend => trend.difference < -0.05);
           const trendLines = trends.map((trend) => {
@@ -1345,12 +1734,14 @@
           progressSummary.innerHTML = '';
         }
 
-        if (records.length === 0) {
-          gameHistoryEl.innerHTML = '<p class="empty">Dina spel visas här när du lagt till spelare.</p>';
+        if (filteredRecords.length === 0) {
+          gameHistoryEl.innerHTML = `<p class="empty">${records.length === 0
+            ? 'Dina spel visas här när du lagt till spelare.'
+            : 'Inga spel hittades för den banan.'}</p>`;
           return;
         }
 
-        gameHistoryEl.innerHTML = records.map((game) => {
+        gameHistoryEl.innerHTML = filteredRecords.map((game) => {
           const isCurrent = game.id === state.gameId;
           const winners = getGameWinners(game);
           const winnerText = game.complete
@@ -1365,12 +1756,19 @@
             return `<span class="history-player">${escapeHtml(player.name)} <strong>${total(player)}</strong></span>`;
           }).join('');
 
+          const meta = [
+            formatHistoryDate(game.playedAt || game.completedAt || game.updatedAt),
+            game.courseName,
+            game.location,
+            `${game.holes} hål`
+          ].filter(Boolean).join(' · ');
+
           return `
             <article class="history-item ${isCurrent ? 'current' : ''}">
               <div class="history-head">
                 <div>
                   <h3 class="history-name">${escapeHtml(game.name)}</h3>
-                  <p class="history-meta">${formatHistoryDate(game.completedAt || game.updatedAt)} · ${game.holes} hål</p>
+                  <p class="history-meta">${escapeHtml(meta)}</p>
                 </div>
                 <span class="status-pill ${game.complete ? '' : 'in-progress'}">${game.complete ? 'Klar' : 'Pågår'}</span>
               </div>
@@ -1415,6 +1813,15 @@
         activeGameName.textContent = state.gameName;
         if (document.activeElement !== gameNameInput) {
           gameNameInput.value = state.gameName;
+        }
+        if (document.activeElement !== courseNameInput) {
+          courseNameInput.value = state.courseName;
+        }
+        if (document.activeElement !== gameLocationInput) {
+          gameLocationInput.value = state.location;
+        }
+        if (document.activeElement !== playedAtInput) {
+          playedAtInput.value = state.playedAt;
         }
         setupCard.classList.toggle('compact', hasPlayers);
         container.classList.toggle('playing', hasPlayers);
@@ -1573,11 +1980,31 @@
         if (event.key === 'Enter') saveGameName();
       });
 
+      function saveGameDetails() {
+        state.courseName = formatGameName(courseNameInput.value);
+        state.location = formatGameName(gameLocationInput.value);
+        state.playedAt = playedAtInput.value || getTodayDate();
+        courseNameInput.value = state.courseName;
+        gameLocationInput.value = state.location;
+        playedAtInput.value = state.playedAt;
+        if (state.courseName) {
+          selectedCourseKey = getCourseKey(state.courseName);
+          selectedStatsPlayer = '';
+        }
+        showToast('Baninformationen sparad');
+        render();
+      }
+
+      saveGameDetailsBtn.addEventListener('click', saveGameDetails);
+
       function replaceCurrentGame(nextGame) {
         for (const key of Object.keys(state)) delete state[key];
         Object.assign(state, nextGame);
         holesInput.value = state.holes;
         gameNameInput.value = state.gameName;
+        courseNameInput.value = state.courseName || '';
+        gameLocationInput.value = state.location || '';
+        playedAtInput.value = state.playedAt || getTodayDate();
         allowSetupCollapse = false;
         wasRoundComplete = false;
         setupDetails.open = true;
@@ -1718,6 +2145,9 @@
         replaceCurrentGame({
           gameId: game.id,
           gameName: game.name,
+          courseName: game.courseName || '',
+          location: game.location || '',
+          playedAt: game.playedAt || game.createdAt?.slice(0, 10) || getTodayDate(),
           createdAt: game.createdAt,
           updatedAt: game.updatedAt,
           holes: game.holes,
@@ -1733,6 +2163,18 @@
         showToast(`${game.name} öppnat`);
         render();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      courseFilter.addEventListener('change', (event) => {
+        selectedCourseKey = event.target.value;
+        selectedStatsPlayer = '';
+        renderHistory();
+      });
+
+      courseStats.addEventListener('change', (event) => {
+        if (event.target.id !== 'statsPlayer') return;
+        selectedStatsPlayer = event.target.value;
+        renderHistory();
       });
 
       render();
