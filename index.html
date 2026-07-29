@@ -1051,8 +1051,8 @@
   <body>
     <div class="container">
       <div class="card" id="setupCard">
-        <div class="topbar">
-          <h1><span class="brand-mark" aria-hidden="true"></span><span id="setupTitleText">Frisbeegolf</span></h1>
+        <div class="topbar" id="setupTopbar" hidden>
+          <h1><span id="setupTitleText">Inställningar</span></h1>
         </div>
         <details id="setupDetails" open>
           <summary id="setupSummary">Inställningar &amp; spelare</summary>
@@ -1260,6 +1260,7 @@
       const incAllBtn = document.getElementById('incAll');
       const toastEl = document.getElementById('toast');
       const setupCard = document.getElementById('setupCard');
+      const setupTopbar = document.getElementById('setupTopbar');
       const setupDetails = document.getElementById('setupDetails');
       const setupSummary = document.getElementById('setupSummary');
       const setupTitleText = document.getElementById('setupTitleText');
@@ -1926,7 +1927,8 @@
         }
         setupCard.classList.toggle('compact', isPlaying);
         container.classList.toggle('playing', isPlaying);
-        setupTitleText.textContent = isPlaying ? 'Inställningar' : 'Frisbeegolf';
+        setupTopbar.hidden = !isPlaying;
+        setupTitleText.textContent = 'Inställningar';
         setupSummary.textContent = hasPlayers
           ? `${state.players.length} spelare · ${state.holes} hål`
           : 'Inställningar & spelare';
