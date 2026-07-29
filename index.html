@@ -643,7 +643,7 @@
             </div>
 
             <div class="setup-actions">
-              <button id="resetAll" class="danger">Nollställ hela rundan</button>
+              <button id="resetAll" class="danger">Radera hela spelet</button>
             </div>
           </div>
         </details>
@@ -1014,12 +1014,14 @@
       });
 
       resetBtn.addEventListener('click', () => {
-        if (!confirm('Nollställa hela rundan? Alla spelare och poäng raderas.')) return;
+        if (!confirm('Radera hela spelet? Alla namn, spelare och poäng försvinner.')) return;
+        state.holes = 9;
         state.players = [];
         state.activePlayerId = null;
         state.activeHole = 0;
+        holesInput.value = state.holes;
         saveState();
-        showToast('Rundan nollställd');
+        showToast('Spelet raderat');
         render();
       });
 
